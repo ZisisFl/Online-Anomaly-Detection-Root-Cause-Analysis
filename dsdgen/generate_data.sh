@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # build image
 docker build -t dsdgen:0.1 .
