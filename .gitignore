@@ -2,3 +2,8 @@
 /dsdgen/DSGen-software-code
 /dsdgen/dsdgen_output
 .env
+
+# Python Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
