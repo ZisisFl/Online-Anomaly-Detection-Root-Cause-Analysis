@@ -1,7 +1,5 @@
-import json
-
 from pandas import DataFrame, read_sql
-from typing import Iterator, Dict, Optional
+from typing import Iterator, Dict, List, Optional, Any
 
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
@@ -14,7 +12,7 @@ from tqdm import tqdm
 from confluent_kafka import SerializingProducer
 from json_serializer import JSONSerializer
 
-class PostgresToDataFrameGenerator:
+class SQLToDataFrameGenerator:
     def __init__(self, table_name: str, batch_size: int) -> None:
         self.table_name = table_name
         self.batch_size = batch_size
@@ -82,33 +80,37 @@ class DataFrameToJsonProduce:
         self,
         topic_name: str,
         producer: SerializingProducer,
-        df_generator: Iterator[DataFrame]
+        df: DataFrame
         ) -> None:
 
         self.topic_name = topic_name
         self.producer = producer
-        self.df_generator = df_generator
+        self.df = df
 
-    def _df_to_dict(self, input_df: DataFrame): #-> Dict[str, Any]:
+    def _df_to_dict(self, input_df: DataFrame) -> List[Dict[str, Any]]:
         return input_df.to_dict(orient='records')
 
     def produce(self):
-        for chunk_index, chunk in enumerate(self.df_generator):
-            print(f'Producing records of chunk {chunk_index}')
-            for record in tqdm(self._df_to_dict(chunk)):
-                self.producer.produce(
-                    topic=self.topic_name,
-                    value=record)
-            
-            self.producer.flush()
+        for record in tqdm(self._df_to_dict(self.df)):
+            self.producer.produce(
+                topic=self.topic_name,
+                value=record)
+        
+        self.producer.flush()
 
-
-if __name__=='__main__':
-    postgres_df_generator = PostgresToDataFrameGenerator('store_sales', 5000)
+def main():
+    sql_df_generator = SQLToDataFrameGenerator('store_sales', 5000).get_pandas_generator()
 
     kafka_producer = KafkaProducerConf().create_producer()
 
-    DataFrameToJsonProduce(
-        topic_name='test1',
-        producer=kafka_producer,
-        df_generator=postgres_df_generator.get_pandas_generator()).produce()
+    for chunk_index, chunk in enumerate(sql_df_generator):
+        print(f'Producing records of chunk {chunk_index}')
+
+        DataFrameToJsonProduce(
+            topic_name='test1',
+            producer=kafka_producer,
+            df=chunk
+            ).produce()
+
+if __name__=='__main__':
+    main()
