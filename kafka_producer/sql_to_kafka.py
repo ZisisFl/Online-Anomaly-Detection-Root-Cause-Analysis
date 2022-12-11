@@ -1,16 +1,44 @@
 from pandas import DataFrame, read_sql
-from typing import Iterator, Dict, List, Optional, Any
-
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
 
-from dotenv import load_dotenv
-from os import getenv
-
-from tqdm import tqdm
-
 from confluent_kafka import SerializingProducer
 from json_serializer import JSONSerializer
+
+from typing import Iterator, Dict, List, Optional, Any
+
+from dotenv import load_dotenv
+from os import getenv
+from tqdm import tqdm
+
+import argparse
+
+
+def parse_command_line_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description='SQL to Kafka producer')
+
+    parser.add_argument(
+        '--table_name',
+        help='SQL table name to fetch data from',
+        type=str,
+        required=True
+        )
+    parser.add_argument(
+        '--topic_name',
+        help='Kafka topic name to produce records to',
+        type=str,
+        required=True
+        )
+    parser.add_argument(
+        '--batch_size',
+        help='Path to output log file',
+        type=int,
+        required=True
+        )
+    
+    args = parser.parse_args()
+
+    return args
 
 class SQLToDataFrameGenerator:
     def __init__(self, table_name: str, batch_size: int) -> None:
@@ -99,7 +127,9 @@ class DataFrameToJsonProduce:
         self.producer.flush()
 
 def main():
-    sql_df_generator = SQLToDataFrameGenerator('store_sales', 5000).get_pandas_generator()
+    args = parse_command_line_arguments()
+
+    sql_df_generator = SQLToDataFrameGenerator(args.table_name, args.batch_size).get_pandas_generator()
 
     kafka_producer = KafkaProducerConf().create_producer()
 
@@ -107,7 +137,7 @@ def main():
         print(f'Producing records of chunk {chunk_index}')
 
         DataFrameToJsonProduce(
-            topic_name='test1',
+            topic_name=args.topic_name,
             producer=kafka_producer,
             df=chunk
             ).produce()
