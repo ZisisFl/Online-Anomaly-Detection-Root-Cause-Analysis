@@ -19,4 +19,15 @@ In order to create a custom makefile copy the Makefile.suite file and make chang
 TPC-DS in PostgreSQL [link](https://ankane.org/tpc-ds)
 
 
-# Kafka Producer
+# Requirements
+## Kafka Producer
+
+```sh
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=tpcds
+
+KAFKA_BROKERS=localhost:9093
+```
