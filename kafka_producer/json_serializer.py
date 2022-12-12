@@ -1,6 +1,15 @@
 import json
 from io import BytesIO
+from datetime import datetime
 from confluent_kafka.serialization import Serializer
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+
+        return super().default(self, o)
 
 
 class _ContextStringIO(BytesIO):
@@ -63,6 +72,6 @@ class JSONSerializer(Serializer):
         with _ContextStringIO() as fo:
             # JSON dump always writes a str never bytes
             # https://docs.python.org/3/library/json.html
-            fo.write(json.dumps(value).encode('utf8'))
+            fo.write(json.dumps(value, cls=DateTimeEncoder).encode('utf8'))
 
             return fo.getvalue()

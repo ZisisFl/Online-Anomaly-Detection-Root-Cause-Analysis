@@ -63,7 +63,8 @@ class SQLToDataFrameGenerator:
         return create_engine(connection_url, pool_pre_ping=True)
     
     def _construct_query(self) -> str:
-        query = F'''SELECT * FROM {self.table_name}'''
+        # TODO generalize this
+        query = F'''SELECT * FROM {self.table_name} ORDER BY sale_at'''
 
         return query
 

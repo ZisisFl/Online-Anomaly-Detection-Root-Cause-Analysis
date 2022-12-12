@@ -7,3 +7,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Scala project
+*.class
+*.log
+.idea/
+
+.bsp
+target/
+project/target/
