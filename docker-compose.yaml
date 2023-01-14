@@ -37,7 +37,8 @@ services:
       - zookeeper
 
   jobmanager:
-    image: flink:1.16.0-scala_2.12
+    platform: linux/x86_64
+    image: flink:1.13.2-scala_2.12
     #container_name: flink-jobmanager
     ports:
       - '8081:8081'
@@ -49,7 +50,8 @@ services:
         rest.flamegraph.enabled: true
 
   taskmanager:
-    image: flink:1.16.0-scala_2.12
+    platform: linux/x86_64
+    image: flink:1.13.2-scala_2.12
     #container_name: flink-taskmanager
     command: taskmanager
     scale: 4

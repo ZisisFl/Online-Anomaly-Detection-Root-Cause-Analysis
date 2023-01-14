@@ -15,5 +15,5 @@ case class SaleRecord(
                        sm_code: String,
                        sm_carrier: String,
                        sale_at: String
-                     ) extends Serializable {
+                     ){
 }

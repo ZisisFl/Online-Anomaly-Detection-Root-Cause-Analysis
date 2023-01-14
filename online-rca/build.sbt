@@ -4,18 +4,21 @@ val flinkVersion = "1.13.2"
 name := "online-rca"
 organization := "auth.dws"
 version := "0.1"
-scalaVersion := scalaMainVersion + ".12"
+ThisBuild / scalaVersion := scalaMainVersion + ".12"
 
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided",
-  "org.apache.flink" %% "flink-connector-kafka" % flinkVersion // cannot
+  "org.apache.flink" %% "flink-connector-kafka" % flinkVersion
 )
 
 lazy val root = (project in file("."))
   .settings(
     libraryDependencies ++= flinkDependencies,
     libraryDependencies += "com.typesafe" % "config" % "1.4.2",
+    libraryDependencies += "org.scalatest" %% "scalatest-flatspec" % "3.3.0-SNAP3" % Test,
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.3.0-SNAP3" % Test,
+    libraryDependencies += "org.apache.flink" %% "flink-test-utils" % flinkVersion % Test,
   )
 
 //assembly / mainClass := Some("main_job.Outlier_detection")

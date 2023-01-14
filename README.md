@@ -33,7 +33,16 @@ KAFKA_BROKERS=localhost:9093
 ```
 
 Run producer
-python kafka_producer/sql_to_kafka.py --table_name web_sales --topic_name test1 --batch_size 10000
+python kafka_producer/sql_to_kafka.py --table_name web_sales_cube1 --topic_name test1 --batch_size 10000
 
 java 11
 scala 2.12
+
+
+Docker compose
+Flink UI http://localhost:8081/#/overview
+
+
+Notes flink
+https://stackoverflow.com/questions/64513940/apache-flink-how-to-implement-custom-deserializer-implementing-deserialization
+https://stackoverflow.com/questions/51648705/how-to-deserialize-when-json-data-in-kafka-is-not-clear-when-using-flink
