@@ -42,14 +42,14 @@ import static org.apache.flink.api.java.typeutils.TypeExtractor.getForClass;
  * (String) and "partition" (int).
  */
 @PublicEvolving
-public class JSONKeyValueDeserializationSchema2 implements KafkaDeserializationSchema<ObjectNode> {
+public class JSONDeserializationSchema implements KafkaDeserializationSchema<ObjectNode> {
 
     private static final long serialVersionUID = 1509391548173891955L;
 
     private final boolean includeMetadata;
     private ObjectMapper mapper;
 
-    public JSONKeyValueDeserializationSchema2(boolean includeMetadata) {
+    public JSONDeserializationSchema(boolean includeMetadata) {
         this.includeMetadata = includeMetadata;
     }
 
@@ -57,7 +57,7 @@ public class JSONKeyValueDeserializationSchema2 implements KafkaDeserializationS
     public ObjectNode deserialize(ConsumerRecord<byte[], byte[]> record) throws Exception {
         if (mapper == null) {
             mapper = new ObjectMapper();
-            mapper.configure(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS, true);
+//            mapper.configure(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS, true);
         }
         ObjectNode node = mapper.createObjectNode();
         if (record.key() != null) {
