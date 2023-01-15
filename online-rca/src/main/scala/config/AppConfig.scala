@@ -11,7 +11,6 @@ object AppConfig {
   println(s"[CONFIG]:${conf}")
 
   def enableCheckpoints(env:StreamExecutionEnvironment): Unit={
-    //env.enableCheckpointing( 60 * 60000)
     env.enableCheckpointing( 5 * 60000)
 
     // set mode to exactly-once (this is the default)

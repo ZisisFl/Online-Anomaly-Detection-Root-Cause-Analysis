@@ -46,3 +46,8 @@ Flink UI http://localhost:8081/#/overview
 Notes flink
 https://stackoverflow.com/questions/64513940/apache-flink-how-to-implement-custom-deserializer-implementing-deserialization
 https://stackoverflow.com/questions/51648705/how-to-deserialize-when-json-data-in-kafka-is-not-clear-when-using-flink
+
+Python
+conda create --name sql_to_kafka python=3.10
+conda activate sql_to_kafka
+pip install -r requirements.txr
