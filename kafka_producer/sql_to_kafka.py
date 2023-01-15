@@ -1,6 +1,7 @@
 from pandas import DataFrame, read_sql
 from sqlalchemy.engine import Engine
 from sqlalchemy import create_engine
+from numpy import nan
 
 from confluent_kafka import SerializingProducer
 from json_serializer import JSONSerializer
@@ -64,7 +65,8 @@ class SQLToDataFrameGenerator:
     
     def _construct_query(self) -> str:
         # TODO generalize this
-        query = F'''SELECT * FROM {self.table_name} ORDER BY sale_at'''
+        #query = F'''SELECT * FROM {self.table_name} ORDER BY sale_at'''
+        query = F'''SELECT * FROM {self.table_name} WHERE ws_order_number=18875 ORDER BY sale_at'''
 
         return query
 
@@ -117,6 +119,7 @@ class DataFrameToJsonProduce:
         self.df = df
 
     def _df_to_dict(self, input_df: DataFrame) -> List[Dict[str, Any]]:
+        input_df = input_df.replace({nan: None})
         return input_df.to_dict(orient='records')
 
     def produce(self):

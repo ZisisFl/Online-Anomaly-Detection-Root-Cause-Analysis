@@ -48,6 +48,8 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager  
         rest.flamegraph.enabled: true
+    profiles:
+      - flink-cluster
 
   taskmanager:
     platform: linux/x86_64
@@ -63,3 +65,5 @@ services:
         rest.flamegraph.enabled: true
     depends_on:
       - jobmanager
+    profiles:
+      - flink-cluster

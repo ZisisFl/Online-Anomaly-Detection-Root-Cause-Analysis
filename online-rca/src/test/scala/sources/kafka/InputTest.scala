@@ -37,7 +37,7 @@ class InputTest extends AnyFlatSpec with Matchers with BeforeAndAfter {
   // CONFIGURATION END
 
   "everything" should "work" in {
-    val inputOrdersStream: DataStream[InputRecord]= {
+    val inputStream: DataStream[InputRecord]= {
       val kafkaConsumer = KafkaConsumer("test1", "flink_job")
 
       val kafkaConsumerWithOffset = fromTime.toLowerCase match {
@@ -52,14 +52,14 @@ class InputTest extends AnyFlatSpec with Matchers with BeforeAndAfter {
             id = "yo",
             timestamp = record.get("sale_at").toString,
             value = record.get("ws_ext_list_price").toString.toDouble,
-            dimensions = List(
-              Dimension(name = "ca_city", value = record.get("ca_city").toString),
-              Dimension(name = "ca_country", value = record.get("ca_country").toString)
+            dimensions = Map(
+              "ca_city" -> record.get("ca_city").toString,
+              "ca_country"-> record.get("ca_country").toString
             )
           )
         })
     }
-    inputOrdersStream
+    inputStream
       .print()
 
     env.execute("Main Job")

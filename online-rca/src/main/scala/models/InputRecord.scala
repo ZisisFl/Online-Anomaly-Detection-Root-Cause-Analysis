@@ -2,15 +2,14 @@ package models
 
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
-import scala.collection.immutable.List
 
-  case class InputRecord(
-                        id: String,
-                        timestamp: String,
-                        value: Double,
-                        dimensions: List[Dimension],
-                        timestamp_pattern: String = "yyyy-MM-DD'T'HH:mm:ssZZZZZ"
-                      ) extends Serializable {
+case class InputRecord(
+                      id: String,
+                      timestamp: String,
+                      value: Double,
+                      dimensions: Map[String, String],
+                      timestamp_pattern: String = "yyyy-MM-DD'T'HH:mm:ssZZZZZ"
+                    ) extends Serializable {
 
   val parsed_timestamp: LocalDateTime =
     LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern(timestamp_pattern).withZone(ZoneOffset.UTC))

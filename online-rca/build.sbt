@@ -9,7 +9,8 @@ ThisBuild / scalaVersion := scalaMainVersion + ".12"
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided",
-  "org.apache.flink" %% "flink-connector-kafka" % flinkVersion
+  "org.apache.flink" %% "flink-connector-kafka" % flinkVersion,
+  "org.apache.flink" %% "flink-test-utils" % flinkVersion % Test
 )
 
 lazy val root = (project in file("."))
@@ -17,11 +18,11 @@ lazy val root = (project in file("."))
     libraryDependencies ++= flinkDependencies,
     libraryDependencies += "com.typesafe" % "config" % "1.4.2",
     libraryDependencies += "org.scalatest" %% "scalatest-flatspec" % "3.3.0-SNAP3" % Test,
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.3.0-SNAP3" % Test,
-    libraryDependencies += "org.apache.flink" %% "flink-test-utils" % flinkVersion % Test,
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.3.0-SNAP3" % Test
   )
 
-//assembly / mainClass := Some("main_job.Outlier_detection")
+// entry point
+assembly / mainClass := Some("jobs.AnomalyDetectionJob")
 
 // make run command include the provided dependencies
 Compile / run  := Defaults.runTask(
@@ -36,3 +37,5 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption := (assembly / assemblyOption).value.copy(includeScala = false)
+
+Test / parallelExecution  := false

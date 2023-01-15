@@ -1,13 +1,16 @@
-package anomaly_detection
+package jobs
 
+import config.AppConfig
 import models.{Dimension, InputRecord}
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import sources.kafka.KafkaConsumer
 
-object MainJob {
+object AnomalyDetectionJob {
   def main(args: Array[String]) {
+
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+    AppConfig.enableCheckpoints(env)
     val fromTime = "earliest"
 
     val inputOrdersStream: DataStream[InputRecord]= {
@@ -25,9 +28,9 @@ object MainJob {
             id = "yo",
             timestamp = record.get("sale_at").toString,
             value = record.get("ws_ext_list_price").toString.toDouble,
-            dimensions = List(
-              Dimension(name = "ca_city", value = record.get("ca_city").toString),
-              Dimension(name = "ca_country", value = record.get("ca_country").toString)
+            dimensions = Map(
+              "ca_city" -> record.get("ca_city").toString,
+              "ca_country"-> record.get("ca_country").toString
             )
           )
         })
@@ -35,6 +38,6 @@ object MainJob {
     inputOrdersStream
       .print()
 
-    env.execute("Main Job")
+    env.execute("Anomaly Detection Job")
   }
 }
