@@ -43,7 +43,7 @@ import static org.apache.flink.api.java.typeutils.TypeExtractor.getForClass;
  */
 @PublicEvolving
 public class JSONDeserializationSchema implements KafkaDeserializationSchema<ObjectNode> {
-
+    //https://stackoverflow.com/questions/51301549/how-to-handle-exception-while-parsing-json-in-flink
     private static final long serialVersionUID = 1509391548173891955L;
 
     private final boolean includeMetadata;

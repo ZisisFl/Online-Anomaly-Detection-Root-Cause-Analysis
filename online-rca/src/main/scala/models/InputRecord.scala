@@ -2,6 +2,8 @@ package models
 
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
+import java.util.UUID
+
 
 case class InputRecord(
                       id: String,
@@ -16,6 +18,21 @@ case class InputRecord(
 
   override def toString = {
     "InputRecord(id=%s, created_at=%s, value=%s, dimensions=%s)".format(id, timestamp, value, dimensions)
+  }
+}
+
+object InputRecord {
+  def apply(
+             timestamp: String,
+             value: Double,
+             dimensions: Map[String, String]
+           ): InputRecord = {
+    InputRecord(
+      id=UUID.randomUUID().toString,
+      timestamp=timestamp,
+      value=value,
+      dimensions=dimensions
+    )
   }
 }
 // multiple constructors for case classes

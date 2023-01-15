@@ -8,10 +8,8 @@ import serialization.JSONDeserializationSchema
 
 import java.util.Properties
 
-
-case class KafkaConsumer(topicName: String, groupId: String = AppConfig.Kafka.GROUP_ID) extends FlinkKafkaConsumer[ObjectNode](
+case class GenericJsonKafkaConsumer(topicName: String, groupId: String = AppConfig.Kafka.GROUP_ID) extends FlinkKafkaConsumer[ObjectNode](
   topicName,
-  //https://stackoverflow.com/questions/51301549/how-to-handle-exception-while-parsing-json-in-flink
   new JSONKeyValueDeserializationSchema(false),
   {
     val properties = new Properties()

@@ -5,7 +5,7 @@ import models.{Dimension, InputRecord}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import sources.kafka.KafkaConsumer
+import sources.kafka.GenericJsonKafkaConsumer
 
 object AnomalyDetectionJob {
   def main(args: Array[String]) {
@@ -20,7 +20,7 @@ object AnomalyDetectionJob {
     val fromTime = "earliest"
 
     val inputOrdersStream: DataStream[InputRecord]= {
-      val kafkaConsumer = KafkaConsumer("test1", "flink_job")
+      val kafkaConsumer = GenericJsonKafkaConsumer("test1", "flink_job")
 
       val kafkaConsumerWithOffset = fromTime.toLowerCase match {
         case "earliest" => kafkaConsumer.setStartFromEarliest()
