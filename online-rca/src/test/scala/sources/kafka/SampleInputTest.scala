@@ -16,9 +16,9 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
   "input stream" should "be created with InputRecordStream.createInputRecordStream method" in {
     val inputStream: DataStream[InputRecord] = InputRecordStream.createInputRecordStream(
       "test1",
-      "earliest",
       env,
-      1
+      1,
+      "earliest"
     )
 
     inputStream.print()
@@ -29,9 +29,9 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
   "town count" should "work" in {
     val inputStream: DataStream[InputRecord] = InputRecordStream.createInputRecordStream(
       "test1",
-      "earliest",
       env,
-      1
+      1,
+      "earliest"
     )
 
     val morgan_town_count = inputStream
@@ -65,8 +65,8 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
             timestamp = record.get("value").get("sale_at").textValue(),
             value = record.get("value").get("ws_ext_list_price").doubleValue(),
             dimensions = Map(
-              "ca_city" -> record.get("value").get("ca_city").textValue(),
-              "ca_country" -> record.get("value").get("ca_country").textValue()
+              "ca_city" -> Dimension("ca_city", record.get("value").get("ca_city").textValue()),
+              "ca_country" -> Dimension("ca_country", record.get("value").get("ca_country").textValue())
             )
           )
         )

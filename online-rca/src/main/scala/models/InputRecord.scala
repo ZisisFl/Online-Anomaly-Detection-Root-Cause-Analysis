@@ -3,14 +3,15 @@ package models
 import java.time.{LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import utils.Types.{CategoricalDimension, DimensionName}
 
 
 case class InputRecord(
-                      id: String,
-                      timestamp: String,
-                      value: Double,
-                      dimensions: Map[String, String],
-                      timestamp_pattern: String = "yyyy-MM-DD'T'HH:mm:ssZZZZZ"
+                        id: String,
+                        timestamp: String,
+                        value: Double,
+                        dimensions: Map[DimensionName, CategoricalDimension],
+                        timestamp_pattern: String = "yyyy-MM-DD'T'HH:mm:ssZZZZZ"
                     ) extends Serializable {
 
   val parsed_timestamp: LocalDateTime =
@@ -25,13 +26,13 @@ object InputRecord {
   def apply(
              timestamp: String,
              value: Double,
-             dimensions: Map[String, String]
+             dimensions: Map[DimensionName, CategoricalDimension]
            ): InputRecord = {
     InputRecord(
-      id=UUID.randomUUID().toString,
-      timestamp=timestamp,
-      value=value,
-      dimensions=dimensions
+      id = UUID.randomUUID().toString,
+      timestamp = timestamp,
+      value = value,
+      dimensions = dimensions
     )
   }
 }
