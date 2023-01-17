@@ -63,7 +63,7 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
         .map(record =>
           InputRecord(
             timestamp = record.get("value").get("sale_at").textValue(),
-            value = record.get("value").get("ws_ext_list_price").doubleValue(),
+            metric = record.get("value").get("ws_ext_list_price").doubleValue(),
             dimensions = Map(
               "ca_city" -> Dimension("ca_city", record.get("value").get("ca_city").textValue()),
               "ca_country" -> Dimension("ca_country", record.get("value").get("ca_country").textValue())

@@ -9,7 +9,7 @@ import utils.Types.{CategoricalDimension, DimensionName}
 case class InputRecord(
                         id: String,
                         timestamp: String,
-                        value: Double,
+                        metric: Double,
                         dimensions: Map[DimensionName, CategoricalDimension],
                         timestamp_pattern: String = "yyyy-MM-DD'T'HH:mm:ssZZZZZ"
                     ) extends Serializable {
@@ -18,20 +18,20 @@ case class InputRecord(
     LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern(timestamp_pattern).withZone(ZoneOffset.UTC))
 
   override def toString = {
-    "InputRecord(id=%s, created_at=%s, value=%s, dimensions=%s)".format(id, timestamp, value, dimensions)
+    "InputRecord(id=%s, created_at=%s, value=%s, dimensions=%s)".format(id, timestamp, metric, dimensions)
   }
 }
 
 object InputRecord {
   def apply(
              timestamp: String,
-             value: Double,
+             metric: Double,
              dimensions: Map[DimensionName, CategoricalDimension]
            ): InputRecord = {
     InputRecord(
       id = UUID.randomUUID().toString,
       timestamp = timestamp,
-      value = value,
+      metric = metric,
       dimensions = dimensions
     )
   }

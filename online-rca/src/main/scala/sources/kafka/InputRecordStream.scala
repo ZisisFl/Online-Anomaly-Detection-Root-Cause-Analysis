@@ -20,14 +20,14 @@ object InputRecordStream {
         case "earliest" => kafkaConsumer.setStartFromEarliest()
         case "latest" => kafkaConsumer.setStartFromLatest()
         case t => kafkaConsumer.setStartFromTimestamp(t.toLong)
-        case _ => throw new IllegalArgumentException("kafkaOffset can either be earliest, latest or a timestamp")
+        //case _ => throw new IllegalArgumentException("kafkaOffset can either be earliest, latest or a timestamp")
       }
       env.addSource(kafkaConsumerWithOffset)
         .setParallelism(parallelism)
         .map(record =>
           InputRecord(
             timestamp = record.get("value").get("sale_at").textValue(),
-            value = record.get("value").get("ws_ext_list_price").doubleValue(),
+            metric = record.get("value").get("ws_ext_list_price").doubleValue(),
             dimensions = Map(
               "ca_city" -> Dimension("ca_city", record.get("value").get("ca_city").textValue()),
               "ca_country" -> Dimension("ca_country", record.get("value").get("ca_country").textValue())

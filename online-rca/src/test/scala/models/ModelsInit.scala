@@ -11,7 +11,7 @@ class ModelsInit extends AnyFlatSpec {
   }
 
   "AnomalyEvent instance" should "be initialized" in {
-    val anomaly: AnomalyEvent = AnomalyEvent()
+    val anomaly: AnomalyEvent = AnomalyEvent(current = 30.0f)
     println(anomaly)
   }
 
