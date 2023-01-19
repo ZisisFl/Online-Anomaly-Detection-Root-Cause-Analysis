@@ -4,7 +4,7 @@ import anomaly_detection.AnomalyDetector
 import models.InputRecord
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.api.scala.createTypeInformation
-import sources.kafka.InputRecordStream
+import sources.kafka.{InputRecordStreamBuilder}
 
 class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
   private var spec: ThresholdDetectorSpec = _
@@ -15,7 +15,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
   }
 
   override def runDetection(env: StreamExecutionEnvironment): Unit = {
-    val inputStream: DataStream[InputRecord] = InputRecordStream.createInputRecordStream(
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
       "test1",
       env,
       1,
@@ -23,7 +23,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
     )
 
     inputStream
-      .filter(record => valueTooLow(record.metric) || valueTooHigh(record.metric))
+      .filter(record => valueTooLow(record.value) || valueTooHigh(record.value))
       .map(record => mapRecordToAnomaly(record))
       .print()
 

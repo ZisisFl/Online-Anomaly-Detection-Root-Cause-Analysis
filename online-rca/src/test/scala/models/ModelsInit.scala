@@ -6,9 +6,11 @@ import org.scalatest.matchers.should.Matchers
 class ModelsInit extends AnyFlatSpec {
 
   "Dimension instance" should "be initialized" in {
-    val dim: Dimension[String] = Dimension(name="name", value="zisis")
+    val dim: Dimension = Dimension(name="name", value="zisis")
     println(dim)
   }
+
+
 
   "AnomalyEvent instance" should "be initialized" in {
     val anomaly: AnomalyEvent = AnomalyEvent(current = 30.0f)

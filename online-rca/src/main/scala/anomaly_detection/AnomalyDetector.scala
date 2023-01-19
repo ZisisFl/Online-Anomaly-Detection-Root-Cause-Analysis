@@ -12,7 +12,7 @@ trait AnomalyDetector[T] extends AbstractDetectorSpec {
 
   def mapRecordToAnomaly(record: InputRecord): AnomalyEvent = {
     AnomalyEvent(
-      current=record.metric
+      current=record.value
     )
   }
 }

@@ -5,7 +5,7 @@ import models.{Dimension, InputRecord}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import sources.kafka.{GenericJsonKafkaConsumer, InputRecordStream}
+import sources.kafka.{GenericJsonKafkaConsumer, InputRecordStreamBuilder}
 
 object AnomalyDetectionJob {
   def main(args: Array[String]) {
@@ -17,7 +17,7 @@ object AnomalyDetectionJob {
     env.getConfig.setGlobalJobParameters(parameters)
     AppConfig.enableCheckpoints(env)
 
-    val inputStream: DataStream[InputRecord] = InputRecordStream.createInputRecordStream(
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
       "test1",
       env,
       1)

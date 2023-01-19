@@ -5,6 +5,8 @@ import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.CheckpointConfig.ExternalizedCheckpointCleanup
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 
+import scala.collection.JavaConverters.asScalaBufferConverter
+
 object AppConfig {
   private val env = if (System.getenv("SCALA_ENV") == null) "dev" else System.getenv("SCALA_ENV")
   private val conf = ConfigFactory.load().getConfig(env)
@@ -33,5 +35,12 @@ object AppConfig {
   object Flink {
     final val HOST = conf.getString("flink.host")
     final val SESSIONWITHGAP = conf.getString("flink.session-with-gap")
+  }
+
+  object InputStream {
+    final val TIMESTAMP_FIELD = conf.getString("input_stream.timestamp_field")
+    final val VALUE_FIELD = conf.getString("input_stream.value_field")
+    final val DIMENSION_NAMES = conf.getStringList("input_stream.dimensions.names").asScala.toList
+    final val DIMENSION_DEFINITIONS = conf.getConfig("input_stream.dimensions.definitions")
   }
 }

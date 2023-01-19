@@ -1,6 +1,6 @@
 package sources.kafka
 
-import config.AppConfig
+import config.{AppConfig}
 import models.{Dimension, InputRecord}
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
@@ -14,7 +14,7 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
   AppConfig.enableCheckpoints(env)
 
   "input stream" should "be created with InputRecordStream.createInputRecordStream method" in {
-    val inputStream: DataStream[InputRecord] = InputRecordStream.createInputRecordStream(
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
       "test1",
       env,
       1,
@@ -27,7 +27,7 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
   }
 
   "town count" should "work" in {
-    val inputStream: DataStream[InputRecord] = InputRecordStream.createInputRecordStream(
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
       "test1",
       env,
       1,
@@ -63,7 +63,7 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
         .map(record =>
           InputRecord(
             timestamp = record.get("value").get("sale_at").textValue(),
-            metric = record.get("value").get("ws_ext_list_price").doubleValue(),
+            value = record.get("value").get("ws_ext_list_price").doubleValue(),
             dimensions = Map(
               "ca_city" -> Dimension("ca_city", record.get("value").get("ca_city").textValue()),
               "ca_country" -> Dimension("ca_country", record.get("value").get("ca_country").textValue())

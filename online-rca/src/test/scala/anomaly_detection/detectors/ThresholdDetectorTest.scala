@@ -8,7 +8,7 @@ class ThresholdDetectorTest extends AnyFlatSpec{
   val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
   AppConfig.enableCheckpoints(env)
 
-  "test threshold detector" should "detect anomalies "in {
+  "test threshold detector" should "detect anomalies " in {
     var spec: ThresholdDetectorSpec = new ThresholdDetectorSpec()
 
     spec.min = 5.0f
