@@ -24,5 +24,4 @@ trait AbstractDetectorSpec extends Serializable {
     _metric=new_metric
     this
   }
-
 }

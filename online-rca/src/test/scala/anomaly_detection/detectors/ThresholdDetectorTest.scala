@@ -11,15 +11,16 @@ class ThresholdDetectorTest extends AnyFlatSpec{
   "test threshold detector" should "detect anomalies " in {
     var spec: ThresholdDetectorSpec = new ThresholdDetectorSpec()
 
-    spec.min = 5.0f
-    spec.max = 40.0f
+    spec.min = 3000.0f
+    spec.max = 5000.0f
     spec.metric = "ws_quantity"
     spec.timestamp = "sale_at"
 
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    detector.runDetection(env)
-  }
+    detector.runDetection(env).print()
 
+    env.execute()
+  }
 }
