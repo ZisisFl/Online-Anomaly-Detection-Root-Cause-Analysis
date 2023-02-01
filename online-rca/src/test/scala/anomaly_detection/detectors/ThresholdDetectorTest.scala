@@ -19,7 +19,7 @@ class ThresholdDetectorTest extends AnyFlatSpec{
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    detector.runDetection(env).print()
+    detector.runDetection(env)
 
     env.execute()
   }

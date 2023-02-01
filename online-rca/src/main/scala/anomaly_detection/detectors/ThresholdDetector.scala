@@ -1,8 +1,8 @@
 package anomaly_detection.detectors
 
 import anomaly_detection.AnomalyDetector
-import anomaly_detection.aggregators.SumAggregator
-import models.{AggregatedRecords, AggregatedRecordWithBaseline, InputRecord}
+import anomaly_detection.aggregators.{SumAggregator, SumAggregator2}
+import models.{AggregatedRecords, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.windowing.assigners.{SlidingEventTimeWindows, SlidingProcessingTimeWindows, TumblingProcessingTimeWindows}
@@ -21,7 +21,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
 //    this.env = env
   }
 
-  override def runDetection(env: StreamExecutionEnvironment): DataStream[AggregatedRecordWithBaseline] = {
+  override def runDetection(env: StreamExecutionEnvironment): Unit = {
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
       "test1",
       env,
@@ -29,20 +29,23 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
       "earliest"
     )
 
+    val aggregationWindowSize = 10
+    val aggregationWindowSlide = 5
+
+    val numberOfOffsetWindows = 5
+    val rootCauseLookback = aggregationWindowSize * numberOfOffsetWindows
+
     inputStream
       .assignAscendingTimestamps(record => record.epoch)
       //.map(record => mapRecordToAnomaly(record))
-      .windowAll(SlidingEventTimeWindows.of(Time.seconds(10), Time.seconds(5)))
+      .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
       //.windowAll(SlidingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5))) processing time alternative
-      .aggregate(new SumAggregator)
-      //apply upper limit threshold rule, needs a fix
-      .filter(agg_record => (valueTooLow(agg_record.current) || valueTooHigh(agg_record.current)))
-      //apply lower limit threshold rule
-      //.filter(agg_record => valueTooHigh(agg_record.current))
-      .map(agg_record => AggregatedRecordWithBaseline(
-        current = agg_record.current,
-        baseline = computeBaseline(agg_record.current),
-        input_records = agg_record.input_records))
+      .aggregate(new SumAggregator2)
+      .assignAscendingTimestamps(agg_record => agg_record.start_timestamp)
+      //      .map(agg_record => (isAnomaly(agg_record.current), agg_record))
+//      .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseLookback), Time.seconds(aggregationWindowSize)))
+//      .aggregate()
+      .print()
   }
 
   private def valueTooHigh(value: Double): Boolean = {
@@ -53,10 +56,10 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
     value < spec.min
   }
 
-  private def findAnomalies(value: Double): Boolean = {
-    if (valueTooLow(value)) false
-    else if (valueTooHigh(value)) false
-    else true
+  private def isAnomaly(value: Double): Boolean = {
+    if (valueTooLow(value)) true
+    else if (valueTooHigh(value)) true
+    else false
   }
 
   private def computeBaseline(current: Double): Double = {

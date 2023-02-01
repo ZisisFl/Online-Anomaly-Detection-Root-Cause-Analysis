@@ -7,6 +7,7 @@ class SumAggregator extends AggregateFunction[InputRecord, AggregatedRecords, Ag
   override def createAccumulator(): AggregatedRecords = AggregatedRecords(0, 0, Array[InputRecord]())
 
   override def add(value: InputRecord, accumulator: AggregatedRecords): AggregatedRecords = {
+    // init accumulator.start_timestamp with the first record creating the window
     if (accumulator.start_timestamp == 0) {
       AggregatedRecords(accumulator.current + value.value, value.epoch, accumulator.input_records :+ value)
     }
