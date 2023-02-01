@@ -1,6 +1,6 @@
 package anomaly_detection.aggregators
 
-import models.{AggregatedRecords, AggregatedRecords2, Dimension, InputRecord, SumAccumulator}
+import models.{AggregatedRecords2, Dimension, InputRecord, SumAccumulator}
 import org.apache.flink.api.common.functions.AggregateFunction
 
 class SumAggregator2 extends AggregateFunction[InputRecord, SumAccumulator, AggregatedRecords2] {
@@ -14,7 +14,7 @@ class SumAggregator2 extends AggregateFunction[InputRecord, SumAccumulator, Aggr
         accumulator.current + value.value,
         value.epoch,
         accumulator.records_accumulated + 1,
-        accumulator.dimensions_breakdown ++ value.dimensions.values.map(dim => (dim, value.value))
+        accumulator.dimensions_with_metric ++ value.dimensions.values.map(dim => (dim, value.value))
       )
     }
     else {
@@ -22,7 +22,7 @@ class SumAggregator2 extends AggregateFunction[InputRecord, SumAccumulator, Aggr
         accumulator.current + value.value,
         accumulator.start_timestamp,
         accumulator.records_accumulated + 1,
-        accumulator.dimensions_breakdown ++ value.dimensions.values.map(dim => (dim, value.value))
+        accumulator.dimensions_with_metric ++ value.dimensions.values.map(dim => (dim, value.value))
       )
     }
   }
@@ -32,7 +32,7 @@ class SumAggregator2 extends AggregateFunction[InputRecord, SumAccumulator, Aggr
       accumulator.current,
       accumulator.start_timestamp,
       accumulator.records_accumulated,
-      accumulator.dimensions_breakdown.groupBy(_._1).mapValues(_.map(_._2).sum)
+      accumulator.dimensions_with_metric.groupBy(_._1).mapValues(_.map(_._2).sum)
     )
   }
 
@@ -41,7 +41,7 @@ class SumAggregator2 extends AggregateFunction[InputRecord, SumAccumulator, Aggr
       a.current + b.current,
       a.start_timestamp.min(b.start_timestamp),
       a.records_accumulated + b.records_accumulated,
-      a.dimensions_breakdown ++ b.dimensions_breakdown
+      a.dimensions_with_metric ++ b.dimensions_with_metric
     )
   }
 }

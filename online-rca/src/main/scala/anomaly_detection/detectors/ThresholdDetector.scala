@@ -37,7 +37,6 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
 
     inputStream
       .assignAscendingTimestamps(record => record.epoch)
-      //.map(record => mapRecordToAnomaly(record))
       .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
       //.windowAll(SlidingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5))) processing time alternative
       .aggregate(new SumAggregator2)
@@ -45,6 +44,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
       //      .map(agg_record => (isAnomaly(agg_record.current), agg_record))
 //      .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseLookback), Time.seconds(aggregationWindowSize)))
 //      .aggregate()
+      //.map(record => mapRecordToAnomaly(record))
       .print()
   }
 
