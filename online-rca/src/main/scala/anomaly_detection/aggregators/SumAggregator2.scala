@@ -1,6 +1,7 @@
 package anomaly_detection.aggregators
 
-import models.{AggregatedRecords2, Dimension, InputRecord, SumAccumulator}
+import models.accumulators.SumAccumulator
+import models.{AggregatedRecords2, Dimension, InputRecord}
 import org.apache.flink.api.common.functions.AggregateFunction
 
 class SumAggregator2 extends AggregateFunction[InputRecord, SumAccumulator, AggregatedRecords2] {

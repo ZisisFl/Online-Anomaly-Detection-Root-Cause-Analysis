@@ -1,5 +1,6 @@
-package models
+package models.accumulators
 
+import models.Dimension
 import utils.Types.MetricValue
 
 case class SumAccumulator(
