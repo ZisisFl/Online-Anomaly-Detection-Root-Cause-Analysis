@@ -7,5 +7,5 @@ case class AggregatedRecordsWBaseline(
                                        baseline: MetricValue,
                                        current_dimensions_breakdown: Map[Dimension, MetricValue],
                                        baseline_dimensions_breakdown: Map[Dimension, MetricValue],
-                                       records_in_offset: Int
+                                       records_in_baseline_offset: Int
                                      )

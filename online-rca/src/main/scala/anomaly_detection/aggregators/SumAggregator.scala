@@ -8,7 +8,7 @@ import org.apache.flink.api.common.functions.AggregateFunction
  * SumAggregator applies sum aggregation and breaks down dimensions accordingly
  */
 class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, AggregatedRecords] {
-  override def createAccumulator(): SumAccumulator = SumAccumulator(0, 0, 0, Iterable[(Dimension, Double)]())
+  override def createAccumulator(): SumAccumulator = SumAccumulator(0, 0, 0, Seq[(Dimension, Double)]())
 
   override def add(value: InputRecord, accumulator: SumAccumulator): SumAccumulator = {
     // init accumulator.start_timestamp with the first record creating the window

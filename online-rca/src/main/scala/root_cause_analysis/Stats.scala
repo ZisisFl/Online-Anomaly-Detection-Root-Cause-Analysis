@@ -1,7 +1,6 @@
 package root_cause_analysis
 
-class Stats {
-
+object Stats {
   def computeValueChangePercentage(baseline: Double, current: Double): Double = {
     if (baseline != 0d) {
       val percentageChange = ((current - baseline) / baseline) * 100d
@@ -42,7 +41,7 @@ class Stats {
     }
   }
 
-  def roundUp(value: Double): Double = {
+  private def roundUp(value: Double): Double = {
     Math.round(value * 10000d) / 100000d
   }
 

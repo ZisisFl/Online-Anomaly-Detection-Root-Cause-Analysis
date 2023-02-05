@@ -8,5 +8,5 @@ case class OffsetBaselineAccumulator(
                                     current_dimensions_breakdown: Map[Dimension, MetricValue],
                                     baseline: MetricValue,
                                     baseline_dimensions: Seq[(Dimension, MetricValue)],
-                                    baseline_records: Int
+                                    records_in_baseline_offset: Int
                                     )

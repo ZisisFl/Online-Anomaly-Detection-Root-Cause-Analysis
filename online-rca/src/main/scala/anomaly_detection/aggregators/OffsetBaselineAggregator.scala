@@ -18,13 +18,14 @@ class OffsetBaselineAggregator extends AggregateFunction[AggregatedRecords, Offs
   )
 
   override def add(value: AggregatedRecords, accumulator: OffsetBaselineAccumulator): OffsetBaselineAccumulator = {
+    // if current record has no dimensions this could be a problem
     if (accumulator.current_dimensions_breakdown.isEmpty) {
       OffsetBaselineAccumulator(
         value.current,
         value.dimensions_breakdown,
         accumulator.baseline,
         accumulator.baseline_dimensions,
-        accumulator.baseline_records
+        accumulator.records_in_baseline_offset
       )
     }
     else {
@@ -33,7 +34,7 @@ class OffsetBaselineAggregator extends AggregateFunction[AggregatedRecords, Offs
         accumulator.current_dimensions_breakdown,
         accumulator.baseline + value.current,
         accumulator.baseline_dimensions ++ value.dimensions_breakdown.toSeq,
-        accumulator.baseline_records + 1
+        accumulator.records_in_baseline_offset + 1
       )
     }
   }
@@ -45,10 +46,11 @@ class OffsetBaselineAggregator extends AggregateFunction[AggregatedRecords, Offs
   override def getResult(accumulator: OffsetBaselineAccumulator): AggregatedRecordsWBaseline = {
     AggregatedRecordsWBaseline(
       accumulator.current,
-      accumulator.baseline / accumulator.baseline_records, // apply averaging
+      accumulator.baseline / accumulator.records_in_baseline_offset, // apply averaging
       accumulator.current_dimensions_breakdown,
-      accumulator.baseline_dimensions.groupBy(_._1).mapValues(x => x.map(_._2).sum/x.length), // apply averaging in dimensions
-      accumulator.baseline_records + 1) // current is always as single record
+      accumulator.baseline_dimensions.groupBy(_._1).mapValues(x => x.map(_._2).sum/accumulator.records_in_baseline_offset), // apply averaging in dimensions
+      // accumulator.baseline_dimensions.groupBy(_._1).mapValues(x => x.map(_._2).sum/x.length) // this averaging gives false metric overall
+      accumulator.records_in_baseline_offset) // current is always as single record
   }
 
   override def merge(a: OffsetBaselineAccumulator, b: OffsetBaselineAccumulator): OffsetBaselineAccumulator = {
@@ -57,7 +59,7 @@ class OffsetBaselineAggregator extends AggregateFunction[AggregatedRecords, Offs
       a.current_dimensions_breakdown,
       a.baseline + b.baseline,
       a.baseline_dimensions ++ b.baseline_dimensions,
-      a.baseline_records + b.baseline_records
+      a.records_in_baseline_offset + b.records_in_baseline_offset
     )
   }
 }

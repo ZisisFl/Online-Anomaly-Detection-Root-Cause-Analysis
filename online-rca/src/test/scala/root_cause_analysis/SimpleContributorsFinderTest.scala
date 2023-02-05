@@ -1,15 +1,17 @@
-package anomaly_detection.detectors
+package root_cause_analysis
 
+import anomaly_detection.detectors.{ThresholdDetector, ThresholdDetectorSpec}
 import config.AppConfig
 import models.AggregatedRecordsWBaseline
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ThresholdDetectorTest extends AnyFlatSpec{
+class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
   val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
   AppConfig.enableCheckpoints(env)
 
-  "test threshold detector" should "detect anomalies " in {
+  "anomaly detection and rca" should "work" in {
     val spec: ThresholdDetectorSpec = new ThresholdDetectorSpec()
 
     spec.min = 3000.0f
@@ -22,7 +24,12 @@ class ThresholdDetectorTest extends AnyFlatSpec{
 
     val output: DataStream[AggregatedRecordsWBaseline] = detector.runDetection(env)
 
-    print(output)
+    val simpleContributorsFinder = new SimpleContributorsFinder()
+
+
+    output
+      .map(anomaly => simpleContributorsFinder.search(anomaly))
+      .print()
 
     env.execute()
   }

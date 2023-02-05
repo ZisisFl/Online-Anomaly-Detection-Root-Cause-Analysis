@@ -7,6 +7,7 @@ trait AbstractDetectorSpec extends Serializable {
   private val DEFAULT_TIMESTAMP = "timestamp";
   private val DEFAULT_METRIC = "value";
 
+
   private var _timestamp: String = DEFAULT_TIMESTAMP
   private var _metric: String = DEFAULT_METRIC
 
