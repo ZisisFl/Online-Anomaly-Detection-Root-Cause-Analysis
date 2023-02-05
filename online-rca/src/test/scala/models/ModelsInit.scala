@@ -10,13 +10,6 @@ class ModelsInit extends AnyFlatSpec {
     println(dim)
   }
 
-
-
-  "AnomalyEvent instance" should "be initialized" in {
-    val anomaly: AnomalyEvent = AnomalyEvent(current = 30.0f)
-    println(anomaly)
-  }
-
   "InputRecord instance" should "be initialized" in {
     val input_record: InputRecord = InputRecord(
       id = "fgt",

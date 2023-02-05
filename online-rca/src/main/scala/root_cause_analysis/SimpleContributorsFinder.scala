@@ -5,9 +5,9 @@ import utils.Types.MetricValue
 
 class SimpleContributorsFinder extends Serializable {
   /**
-   * Similar logic to computeStats method of
+   * Similar logic to computeStats method of Startree Thirdeye
    * thirdeye-plugins/thirdeye-contributors-simple/src/main/java/ai/startree/thirdeye/plugins/rca/contributors/simple/SimpleContributorsFinder.java
-   * @param baseline_dimensions_breakdown
+   * @param aggregatedRecordsWBaseline
    */
 
   def search(aggregatedRecordsWBaseline: AggregatedRecordsWBaseline): RCAResult = {
@@ -66,6 +66,6 @@ class SimpleContributorsFinder extends Serializable {
         contributionToOverallChangePercentage,
         Cost.compute(valueChangePercentage, contributionChangePercentage, contributionToOverallChangePercentage)
       )
-    }).toList.sortBy(-_.cost)
+    }).toList.sortBy(-_.cost) // sort resulting list by descending cost
   }
 }

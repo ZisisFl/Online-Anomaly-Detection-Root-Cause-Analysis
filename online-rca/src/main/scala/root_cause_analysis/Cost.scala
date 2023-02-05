@@ -1,7 +1,7 @@
 package root_cause_analysis
 
 object Cost {
-  private final val MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE = 0;
+  private final val MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE = 3d
 
   /**
    * This is the implementation of the Balanced Simple cost function found in

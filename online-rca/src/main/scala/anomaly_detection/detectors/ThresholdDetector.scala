@@ -2,10 +2,10 @@ package anomaly_detection.detectors
 
 import anomaly_detection.AnomalyDetector
 import anomaly_detection.aggregators.{OffsetBaselineAggregator, SumAggregator}
-import models.{AggregatedRecordsWBaseline, InputRecord}
+import models.{AggregatedRecordsWBaseline, AnomalyEvent, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.api.scala.createTypeInformation
-import org.apache.flink.streaming.api.windowing.assigners.{SlidingEventTimeWindows}
+import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import sources.kafka.InputRecordStreamBuilder
 
@@ -42,6 +42,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
       .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseWindowSize), Time.seconds(aggregationWindowSize)))
       .aggregate(new OffsetBaselineAggregator)
       .filter(record => isAnomaly(record.current))
+//      .map(record => AnomalyEvent(record))
 //      .map(record => (isAnomaly(record.current), record))
   }
 
