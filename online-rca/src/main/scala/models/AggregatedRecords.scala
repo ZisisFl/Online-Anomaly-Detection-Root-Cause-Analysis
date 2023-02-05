@@ -1,8 +1,19 @@
 package models
 
-case class AggregatedRecords(current: Double, start_timestamp: Long, input_records: Array[InputRecord]) {
+import utils.Types.MetricValue
 
+case class AggregatedRecords(
+                               current: Double,
+                               window_starting_epoch: Long,
+                               records_aggregated: Int,
+                               dimensions_breakdown: Map[Dimension, MetricValue]
+                             ) {
   override def toString = {
-    "AggregatedRecords(current=%s, start_timestamp=%s, len=%s, input_records=%s)".format(current, start_timestamp, input_records.mkString(","))
+    "AggregatedRecords(current=%s, window_starting_epoch=%s, records_aggregated=%s, dimensions_breakdown=%s)".format(
+      current,
+      window_starting_epoch,
+      records_aggregated,
+      dimensions_breakdown
+    )
   }
 }

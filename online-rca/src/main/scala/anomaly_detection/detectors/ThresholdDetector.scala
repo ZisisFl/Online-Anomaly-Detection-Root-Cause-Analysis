@@ -1,7 +1,8 @@
 package anomaly_detection.detectors
 
 import anomaly_detection.AnomalyDetector
-import anomaly_detection.aggregators.{SumAggregator, SumAggregator2}
+import anomaly_detection.aggregators.{SumAggregator, OffsetBaselineAggregator}
+import models.accumulators.OffsetBaselineAccumulator
 import models.{AggregatedRecords, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.api.scala.createTypeInformation
@@ -29,8 +30,8 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
       "earliest"
     )
 
-    val aggregationWindowSize = 10
-    val aggregationWindowSlide = 5
+    val aggregationWindowSize = 30
+    val aggregationWindowSlide = 10
 
     val numberOfOffsetWindows = 5
     val rootCauseLookback = aggregationWindowSize * numberOfOffsetWindows
@@ -39,11 +40,11 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
       .assignAscendingTimestamps(record => record.epoch)
       .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
       //.windowAll(SlidingProcessingTimeWindows.of(Time.seconds(10), Time.seconds(5))) processing time alternative
-      .aggregate(new SumAggregator2)
-      .assignAscendingTimestamps(agg_record => agg_record.start_timestamp)
+      .aggregate(new SumAggregator)
+      .assignAscendingTimestamps(agg_record => agg_record.window_starting_epoch)
       //      .map(agg_record => (isAnomaly(agg_record.current), agg_record))
-//      .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseLookback), Time.seconds(aggregationWindowSize)))
-//      .aggregate()
+      .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseLookback), Time.seconds(aggregationWindowSize)))
+      .aggregate(new OffsetBaselineAggregator)
       //.map(record => mapRecordToAnomaly(record))
       .print()
   }

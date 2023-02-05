@@ -1,28 +1,51 @@
 package anomaly_detection.aggregators
 
-import models.{AggregatedRecords, InputRecord}
+import models.accumulators.SumAccumulator
+import models.{AggregatedRecords, Dimension, InputRecord}
 import org.apache.flink.api.common.functions.AggregateFunction
 
-class SumAggregator extends AggregateFunction[InputRecord, AggregatedRecords, AggregatedRecords] {
-  override def createAccumulator(): AggregatedRecords = AggregatedRecords(0, 0, Array[InputRecord]())
+/**
+ * SumAggregator applies sum aggregation and breaks down dimensions accordingly
+ */
+class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, AggregatedRecords] {
+  override def createAccumulator(): SumAccumulator = SumAccumulator(0, 0, 0, Iterable[(Dimension, Double)]())
 
-  override def add(value: InputRecord, accumulator: AggregatedRecords): AggregatedRecords = {
+  override def add(value: InputRecord, accumulator: SumAccumulator): SumAccumulator = {
     // init accumulator.start_timestamp with the first record creating the window
-    if (accumulator.start_timestamp == 0) {
-      AggregatedRecords(accumulator.current + value.value, value.epoch, accumulator.input_records :+ value)
+    if (accumulator.window_starting_epoch == 0) {
+
+      SumAccumulator(
+        accumulator.current + value.value,
+        value.epoch,
+        accumulator.records_accumulated + 1,
+        accumulator.dimensions_with_metric ++ value.dimensions.values.map(dim => (dim, value.value))
+      )
     }
     else {
-      AggregatedRecords(accumulator.current + value.value, accumulator.start_timestamp, accumulator.input_records :+ value)
+      SumAccumulator(
+        accumulator.current + value.value,
+        accumulator.window_starting_epoch,
+        accumulator.records_accumulated + 1,
+        accumulator.dimensions_with_metric ++ value.dimensions.values.map(dim => (dim, value.value))
+      )
     }
   }
 
-  override def getResult(accumulator: AggregatedRecords): AggregatedRecords = AggregatedRecords(
-    accumulator.current,
-    accumulator.start_timestamp,
-    accumulator.input_records
-  )
+  override def getResult(accumulator: SumAccumulator): AggregatedRecords = {
+    AggregatedRecords(
+      accumulator.current,
+      accumulator.window_starting_epoch,
+      accumulator.records_accumulated,
+      accumulator.dimensions_with_metric.groupBy(_._1).mapValues(_.map(_._2).sum)
+    )
+  }
 
-  override def merge(a: AggregatedRecords, b: AggregatedRecords): AggregatedRecords = {
-    AggregatedRecords(a.current + b.current, a.start_timestamp.min(b.start_timestamp), a.input_records ++ b.input_records)
+  override def merge(a: SumAccumulator, b: SumAccumulator): SumAccumulator = {
+    SumAccumulator(
+      a.current + b.current,
+      a.window_starting_epoch.min(b.window_starting_epoch),
+      a.records_accumulated + b.records_accumulated,
+      a.dimensions_with_metric ++ b.dimensions_with_metric
+    )
   }
 }
