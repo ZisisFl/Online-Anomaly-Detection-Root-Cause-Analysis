@@ -22,7 +22,7 @@ class ThresholdDetectorTest extends AnyFlatSpec{
 
     val output: DataStream[AggregatedRecordsWBaseline] = detector.runDetection(env)
 
-    print(output)
+    output.print()
 
     env.execute()
   }
