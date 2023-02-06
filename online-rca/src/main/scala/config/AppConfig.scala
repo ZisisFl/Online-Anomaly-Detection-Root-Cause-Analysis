@@ -1,6 +1,7 @@
 package config
 
 import com.typesafe.config._
+import models.Dimension
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.CheckpointConfig.ExternalizedCheckpointCleanup
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
@@ -38,9 +39,16 @@ object AppConfig {
   }
 
   object InputStream {
+    private def constructDimensionHierarchiesMap():Map[String, String] = {
+      AppConfig.InputStream.DIMENSION_NAMES
+        .map(dim => (dim, DIMENSION_DEFINITIONS.getConfig(dim).getString("parent_dimension")))
+        .groupBy(_._1)
+        .mapValues(_.map(_._2).head)
+    }
     final val TIMESTAMP_FIELD = conf.getString("input_stream.timestamp_field")
     final val VALUE_FIELD = conf.getString("input_stream.value_field")
     final val DIMENSION_NAMES = conf.getStringList("input_stream.dimensions.names").asScala.toList
     final val DIMENSION_DEFINITIONS = conf.getConfig("input_stream.dimensions.definitions")
+    final val DIMENSION_HIERARCHIES = constructDimensionHierarchiesMap()//Map("ca_city" -> "ca_county", "ca_county" -> "root")
   }
 }
