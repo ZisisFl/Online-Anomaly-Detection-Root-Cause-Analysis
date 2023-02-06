@@ -1,6 +1,6 @@
 package root_cause_analysis
 
-object Cost {
+object SimpleContributorsCost {
   private final val MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE = 3d
 
   /**

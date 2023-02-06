@@ -50,7 +50,7 @@ class OffsetBaselineAggregator extends AggregateFunction[AggregatedRecords, Offs
       accumulator.current_dimensions_breakdown,
       accumulator.baseline_dimensions.groupBy(_._1).mapValues(x => x.map(_._2).sum/accumulator.records_in_baseline_offset), // apply averaging in dimensions
       // accumulator.baseline_dimensions.groupBy(_._1).mapValues(x => x.map(_._2).sum/x.length) // this averaging gives false metric overall
-      accumulator.records_in_baseline_offset) // current is always as single record
+      accumulator.records_in_baseline_offset)
   }
 
   override def merge(a: OffsetBaselineAccumulator, b: OffsetBaselineAccumulator): OffsetBaselineAccumulator = {

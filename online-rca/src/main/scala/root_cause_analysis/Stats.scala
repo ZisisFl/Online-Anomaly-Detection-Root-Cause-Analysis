@@ -1,6 +1,8 @@
 package root_cause_analysis
 
 object Stats {
+  private final val EPSILON = 0.00001
+
   def computeValueChangePercentage(baseline: Double, current: Double): Double = {
     if (baseline != 0d) {
       val percentageChange = ((current - baseline) / baseline) * 100d
@@ -41,8 +43,30 @@ object Stats {
     }
   }
 
+  /**
+   * Used for hierarchical contributors algorithm according to implementation found
+   * thirdeye-pinot/src/main/java/org/apache/pinot/thirdeye/cube/cost/BalancedCostFunction.java
+   * Contribution in an additive (AdditiveCubeNode RatioCubeNode)
+   * @param baselineSize
+   * @param currentSize
+   * @param baselineTotalSize
+   * @param currentTotalSize
+   * @return
+   */
+  def computeContribution(
+                           baselineSize: Double,
+                           currentSize: Double,
+                           baselineTotalSize: Double,
+                           currentTotalSize: Double
+                         ): Double = {
+
+    val contribution = (baselineSize + currentSize) / (baselineTotalSize + currentTotalSize)
+
+    if (Math.abs(0d - contribution) < EPSILON) 0d
+    else roundUp(contribution)
+  }
+
   private def roundUp(value: Double): Double = {
     Math.round(value * 10000d) / 100000d
   }
-
 }

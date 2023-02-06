@@ -1,7 +1,7 @@
 package models.accumulators
 
 import models.Dimension
-import utils.Types.MetricValue
+import utils.Types.{MetricValue, ChildDimension, ParentDimension}
 
 case class SumAccumulator(
                            current: MetricValue,

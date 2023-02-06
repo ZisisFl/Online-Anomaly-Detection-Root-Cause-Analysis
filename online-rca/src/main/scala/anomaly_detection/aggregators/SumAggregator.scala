@@ -3,17 +3,22 @@ package anomaly_detection.aggregators
 import models.accumulators.SumAccumulator
 import models.{AggregatedRecords, Dimension, InputRecord}
 import org.apache.flink.api.common.functions.AggregateFunction
+import utils.Types.{ChildDimension, ParentDimension}
 
 /**
  * SumAggregator applies sum aggregation and breaks down dimensions accordingly
  */
 class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, AggregatedRecords] {
-  override def createAccumulator(): SumAccumulator = SumAccumulator(0, 0, 0, Seq[(Dimension, Double)]())
+  override def createAccumulator(): SumAccumulator = SumAccumulator(
+    0,
+    0,
+    0,
+    Seq[(Dimension, Double)]()
+  )
 
   override def add(value: InputRecord, accumulator: SumAccumulator): SumAccumulator = {
     // init accumulator.start_timestamp with the first record creating the window
     if (accumulator.window_starting_epoch == 0) {
-
       SumAccumulator(
         accumulator.current + value.value,
         value.epoch,

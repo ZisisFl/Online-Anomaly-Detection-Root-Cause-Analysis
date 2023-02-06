@@ -61,10 +61,7 @@ class SimpleContributorsFinder extends Serializable {
         dim,
         currentValue,
         baselineTotal,
-        valueChangePercentage,
-        contributionChangePercentage,
-        contributionToOverallChangePercentage,
-        Cost.compute(valueChangePercentage, contributionChangePercentage, contributionToOverallChangePercentage)
+        SimpleContributorsCost.compute(valueChangePercentage, contributionChangePercentage, contributionToOverallChangePercentage)
       )
     }).toList.sortBy(-_.cost) // sort resulting list by descending cost
   }
