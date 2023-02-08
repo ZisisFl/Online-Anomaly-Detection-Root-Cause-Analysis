@@ -2,10 +2,11 @@ package root_cause_analysis
 
 import anomaly_detection.detectors.{ThresholdDetector, ThresholdDetectorSpec}
 import config.AppConfig
-import models.{AggregatedRecordsWBaseline, AnomalyEvent}
+import models.{AnomalyEvent, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import sources.kafka.InputRecordStreamBuilder
 
 class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
   val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
@@ -22,7 +23,12 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val output: DataStream[AnomalyEvent] = detector.runDetection(env)
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
+      "test3",
+      env,
+      1)
+
+    val output: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
     val hierarchicalContributorsFinder = new HierarchicalContributorsFinder()
 
@@ -31,21 +37,5 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
       .print()
 
     env.execute("Hierarchical Contributors Finder test")
-  }
-
-  "errorWithEmptyBaseline function" should "result to infinity" in {
-    val currentValue = 5d
-    val parentRatio = 0d
-
-    val cost = HierarchicalContributorsCost.errorWithEmptyBaseline(currentValue, parentRatio)
-    print(cost)
-  }
-
-  "errorWithEmptyBaseline function" should "result to 0" in {
-    val currentValue = 5d
-    val parentRatio = 1d
-
-    val cost = HierarchicalContributorsCost.errorWithEmptyBaseline(currentValue, parentRatio)
-    print(cost)
   }
 }

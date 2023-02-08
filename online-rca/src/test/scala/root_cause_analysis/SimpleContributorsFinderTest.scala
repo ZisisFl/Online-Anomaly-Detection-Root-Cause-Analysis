@@ -2,10 +2,11 @@ package root_cause_analysis
 
 import anomaly_detection.detectors.{ThresholdDetector, ThresholdDetectorSpec}
 import config.AppConfig
-import models.{AggregatedRecordsWBaseline, AnomalyEvent}
+import models.{AnomalyEvent, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import sources.kafka.InputRecordStreamBuilder
 
 class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
   val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
@@ -22,7 +23,12 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val output: DataStream[AnomalyEvent] = detector.runDetection(env)
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
+      "test3",
+      env,
+      1)
+
+    val output: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
     val simpleContributorsFinder = new SimpleContributorsFinder()
 

@@ -3,11 +3,10 @@ package anomaly_detection.detectors
 import anomaly_detection.AnomalyDetector
 import anomaly_detection.aggregators.{OffsetBaselineAggregator, SumAggregator}
 import models.{AnomalyEvent, InputRecord}
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
-import sources.kafka.InputRecordStreamBuilder
 
 class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
   private var spec: ThresholdDetectorSpec = _
@@ -20,13 +19,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
     this.spec = spec
   }
 
-  override def runDetection(env: StreamExecutionEnvironment): DataStream[AnomalyEvent] = {
-    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test2",
-      env,
-      1,
-      "earliest"
-    )
+  override def runDetection(inputStream: DataStream[InputRecord]): DataStream[AnomalyEvent] = {
 
     val aggregationWindowSize = 30
     val aggregationWindowSlide = 10
@@ -35,7 +28,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
     val rootCauseWindowSize = aggregationWindowSize * numberOfOffsetWindows
 
     inputStream
-      .assignAscendingTimestamps(record => record.epoch)
+      .assignAscendingTimestamps(_.epoch)
       .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
       .aggregate(new SumAggregator)
       .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseWindowSize), Time.seconds(aggregationWindowSize)))

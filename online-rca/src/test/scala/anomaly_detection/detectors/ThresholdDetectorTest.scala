@@ -1,9 +1,10 @@
 package anomaly_detection.detectors
 
 import config.AppConfig
-import models.{AggregatedRecordsWBaseline, AnomalyEvent}
+import models.{AnomalyEvent, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.scalatest.flatspec.AnyFlatSpec
+import sources.kafka.InputRecordStreamBuilder
 
 class ThresholdDetectorTest extends AnyFlatSpec{
   val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
@@ -20,10 +21,15 @@ class ThresholdDetectorTest extends AnyFlatSpec{
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val output: DataStream[AnomalyEvent] = detector.runDetection(env)
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
+      "test3",
+      env,
+      1)
+
+    val output: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
     output.print()
 
-    env.execute()
+    env.execute("ThresholdDetector test")
   }
 }
