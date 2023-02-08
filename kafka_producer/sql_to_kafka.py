@@ -32,7 +32,13 @@ def parse_command_line_arguments() -> argparse.Namespace:
         )
     parser.add_argument(
         '--batch_size',
-        help='Path to output log file',
+        help='Size of each batch to be sent to Kafka',
+        type=int,
+        required=True
+        )
+    parser.add_argument(
+        '--limit',
+        help='Limit number of records to sent to Kafka (over all batches)',
         type=int,
         required=True
         )
@@ -42,9 +48,10 @@ def parse_command_line_arguments() -> argparse.Namespace:
     return args
 
 class SQLToDataFrameGenerator:
-    def __init__(self, table_name: str, batch_size: int) -> None:
+    def __init__(self, table_name: str, batch_size: int, limit: Optional[int]) -> None:
         self.table_name = table_name
         self.batch_size = batch_size
+        self.limit = limit
 
         self.query = self._construct_query()
         self.engine = self._create_engine()
@@ -65,8 +72,10 @@ class SQLToDataFrameGenerator:
     
     def _construct_query(self) -> str:
         # TODO generalize this
-        #query = F'''SELECT * FROM {self.table_name} ORDER BY sale_at'''
-        query = F'''SELECT * FROM {self.table_name} WHERE ws_order_number=18875 ORDER BY sale_at'''
+        if self.limit is None:
+            query = F'''SELECT * FROM {self.table_name} ORDER BY sale_at'''
+        else:
+            query = F'''SELECT * FROM {self.table_name} ORDER BY sale_at LIMIT {self.limit}'''
 
         return query
 
@@ -133,7 +142,11 @@ class DataFrameToJsonProduce:
 def main():
     args = parse_command_line_arguments()
 
-    sql_df_generator = SQLToDataFrameGenerator(args.table_name, args.batch_size).get_pandas_generator()
+    sql_df_generator = SQLToDataFrameGenerator(
+        args.table_name,
+        args.batch_size,
+        args.limit
+        ).get_pandas_generator()
 
     kafka_producer = KafkaProducerConf().create_producer()
 
