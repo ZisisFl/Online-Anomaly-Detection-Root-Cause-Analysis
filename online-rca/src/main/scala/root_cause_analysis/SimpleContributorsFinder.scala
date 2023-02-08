@@ -56,7 +56,7 @@ class SimpleContributorsFinder extends Serializable {
         stats.contributionToOverallChangePercentage
       )
     }).toList
-      //.filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
+      .filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
       .sortBy(-_.cost) // sort resulting list of DimensionStats by descending cost
   }
 }

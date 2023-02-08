@@ -22,7 +22,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
 
   override def runDetection(env: StreamExecutionEnvironment): DataStream[AggregatedRecordsWBaseline] = {
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
+      "test3",
       env,
       1,
       "earliest"
@@ -55,7 +55,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
   }
 
   /**
-   * This could take as input a AggregatedRecords object and function could be abstract in Anomalyt Detector trait
+   * This could take as input a AggregatedRecords object and function could be abstract in Anomaly Detector trait
    * @param value
    * @return
    */
