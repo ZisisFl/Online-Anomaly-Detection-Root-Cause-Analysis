@@ -22,13 +22,14 @@ class ThresholdDetectorTest extends AnyFlatSpec{
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test3",
+      "test1",
       env,
       1)
 
     val output: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
     output.print()
+//    output.writeAsText("test_output")
 
     env.execute("ThresholdDetector test")
   }

@@ -22,7 +22,7 @@ lazy val root = (project in file("."))
   )
 
 // entry point
-assembly / mainClass := Some("jobs.AnomalyDetectionJob")
+assembly / mainClass := Some("jobs.MainJob")
 
 // make run command include the provided dependencies
 Compile / run  := Defaults.runTask(
@@ -37,5 +37,3 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption := (assembly / assemblyOption).value.copy(includeScala = false)
-
-Test / parallelExecution  := false

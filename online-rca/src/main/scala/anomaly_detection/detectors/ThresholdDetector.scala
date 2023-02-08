@@ -2,7 +2,7 @@ package anomaly_detection.detectors
 
 import anomaly_detection.AnomalyDetector
 import anomaly_detection.aggregators.{OffsetBaselineAggregator, SumAggregator}
-import models.{AnomalyEvent, InputRecord}
+import models.{AggregatedRecords, AnomalyEvent, InputRecord}
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows
@@ -26,6 +26,12 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
 
     val numberOfOffsetWindows = 2
     val rootCauseWindowSize = aggregationWindowSize * numberOfOffsetWindows
+
+    // isolate aggregation
+//        val aggregatedRecordsStream: DataStream[AggregatedRecords] = inputStream
+//          .assignAscendingTimestamps(_.epoch)
+//          .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
+//          .aggregate(new SumAggregator)
 
     inputStream
       .assignAscendingTimestamps(_.epoch)
