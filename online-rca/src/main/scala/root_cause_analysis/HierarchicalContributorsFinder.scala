@@ -1,7 +1,7 @@
 package root_cause_analysis
 
 import models.{AggregatedRecordsWBaseline, Dimension, DimensionStats, RCAResult}
-import utils.Types.MetricValue
+import utils.Types.{ChildDimension, MetricValue, ParentDimension}
 
 /**
  * According to thirdeye-pinot/src/main/java/org/apache/pinot/thirdeye/cube/cost/BalancedCostFunction.java
@@ -23,7 +23,8 @@ class HierarchicalContributorsFinder extends Serializable {
         currentTotal,
         baselineTotal,
         aggregatedRecordsWBaseline.current_dimensions_breakdown,
-        aggregatedRecordsWBaseline.baseline_dimensions_breakdown
+        aggregatedRecordsWBaseline.baseline_dimensions_breakdown,
+        aggregatedRecordsWBaseline.dimensions_hierarchy
       )
     )
   }
@@ -32,7 +33,8 @@ class HierarchicalContributorsFinder extends Serializable {
                     currentTotal: Double,
                     baselineTotal: Double,
                     currentDimensionsBreakdown: Map[Dimension, MetricValue],
-                    baselineDimensionsBreakdown: Map[Dimension, MetricValue]
+                    baselineDimensionsBreakdown: Map[Dimension, MetricValue],
+                    dimensionsHierarchy: Map[ChildDimension, ParentDimension]
                   ): List[DimensionStats] = {
 
     // some Dimensions(name, value) tuples are not present in both tables - fill those with zeroes
@@ -61,8 +63,10 @@ class HierarchicalContributorsFinder extends Serializable {
       val currentSize = currentValue
       val baselineTotalSize = baselineTotal
       val currentTotalSize = currentTotal
+      val parentCurrentValue = getParentValue(dim, dimensionsHierarchy, currentDimensionsBreakdown, currentTotal)
+      val parentBaselineValue = getParentValue(dim, dimensionsHierarchy, baselineDimensionsBreakdown, baselineTotal)
 
-      val parentRatio = 1d
+      val parentRatio = Stats.computeChangeRatio(parentBaselineValue, parentCurrentValue)
 
       val contribution = Stats.computeContribution(baselineSize, currentSize, baselineTotalSize, currentTotalSize)
 
@@ -76,4 +80,33 @@ class HierarchicalContributorsFinder extends Serializable {
       .filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
       .sortBy(-_.cost) // sort resulting list of DimensionStats by descending cost
   }
+
+  def getParentValue(
+                 childDim: Dimension,
+                 dimensionsHierarchy: Map[ChildDimension, ParentDimension],
+                 dimensionsBreakdown: Map[Dimension, MetricValue],
+                 valueTotal: Double): Double = {
+    /**
+     * We could add an object Dimension(root, {current|baseline}ValueTotal) in the dimensionsBreakdown
+     * and not filter out root parent in DimensionHierarchy in order to handle here uniformly parent dimension handling.
+     * This solution would also require Aggregators' getResult method to add the Dimension(root, {current|baseline}ValueTotal)
+     *
+     * But in the way that we handle it we save up space as we do not store pairs of Map[ChildDimension, ParentDimension]
+     * when parent is root.
+     *
+     */
+
+    // find parent
+    val parentDim = dimensionsHierarchy.getOrElse(childDim, Dimension("root", "none"))
+
+    // get MetricValue of parent
+    // if Dimension doesn't exist in dimensionsHierarchy means parentDim is root so set value to valueTotal
+    // otherwise search for value in dimensionsBreakdown which may be absent as happens for current calculation
+    val parentValue: Double = parentDim.name match {
+      case "root" => valueTotal
+      case _ => dimensionsBreakdown.getOrElse(parentDim, 0d)
+    }
+
+    parentValue
+    }
 }

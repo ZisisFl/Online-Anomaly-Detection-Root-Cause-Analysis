@@ -66,6 +66,10 @@ object Stats {
     else roundUp(contribution)
   }
 
+  def computeChangeRatio(baseline: Double, current: Double): Double = {
+    roundUp(current / baseline)
+  }
+
   private def roundUp(value: Double): Double = {
     Math.round(value * 10000d) / 100000d
   }
