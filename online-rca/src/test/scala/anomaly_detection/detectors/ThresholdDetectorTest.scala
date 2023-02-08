@@ -1,7 +1,7 @@
 package anomaly_detection.detectors
 
 import config.AppConfig
-import models.AggregatedRecordsWBaseline
+import models.{AggregatedRecordsWBaseline, AnomalyEvent}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.scalatest.flatspec.AnyFlatSpec
 
@@ -20,7 +20,7 @@ class ThresholdDetectorTest extends AnyFlatSpec{
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val output: DataStream[AggregatedRecordsWBaseline] = detector.runDetection(env)
+    val output: DataStream[AnomalyEvent] = detector.runDetection(env)
 
     output.print()
 

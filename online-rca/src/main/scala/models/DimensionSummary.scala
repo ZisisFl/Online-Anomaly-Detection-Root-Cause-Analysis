@@ -13,7 +13,7 @@ case class DimensionSummary(
                          ) {
 
   override def toString: String = {
-    "DimensionStats(dimension=%s, currentValue=%s, baselineValue=%s, cost=%s, valueChangePercentage=%s, contributionChangePercentage=%s, contributionToOverallChangePercentage=%s)".format(
+    "DimensionSummary(dimension=%s, currentValue=%s, baselineValue=%s, cost=%s, valueChangePercentage=%s, contributionChangePercentage=%s, contributionToOverallChangePercentage=%s)".format(
       dimension,
       currentValue,
       baselineValue,

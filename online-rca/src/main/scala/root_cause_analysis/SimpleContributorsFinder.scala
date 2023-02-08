@@ -1,6 +1,6 @@
 package root_cause_analysis
 
-import models.{AggregatedRecordsWBaseline, Dimension, DimensionSummary, RCAResult}
+import models.{AggregatedRecordsWBaseline, AnomalyEvent, Dimension, DimensionSummary, RCAResult}
 import utils.Types.MetricValue
 
 class SimpleContributorsFinder extends Serializable {
@@ -10,18 +10,20 @@ class SimpleContributorsFinder extends Serializable {
    * @param aggregatedRecordsWBaseline
    */
 
-  def search(aggregatedRecordsWBaseline: AggregatedRecordsWBaseline): RCAResult = {
-    val currentTotal = aggregatedRecordsWBaseline.current
-    val baselineTotal = aggregatedRecordsWBaseline.baseline
+  def search(anomalyEvent: AnomalyEvent): RCAResult = {
+    val currentTotal = anomalyEvent.aggregatedRecordsWBaseline.current
+    val baselineTotal = anomalyEvent.aggregatedRecordsWBaseline.baseline
 
     RCAResult(
+      anomalyEvent.anomalyId,
+      anomalyEvent.detectedAt,
       currentTotal,
       baselineTotal,
       computeSummaries(
         currentTotal,
         baselineTotal,
-        aggregatedRecordsWBaseline.current_dimensions_breakdown,
-        aggregatedRecordsWBaseline.baseline_dimensions_breakdown
+        anomalyEvent.aggregatedRecordsWBaseline.current_dimensions_breakdown,
+        anomalyEvent.aggregatedRecordsWBaseline.baseline_dimensions_breakdown
       )
     )
   }

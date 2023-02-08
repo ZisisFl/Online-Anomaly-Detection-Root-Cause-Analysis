@@ -22,7 +22,7 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val output: DataStream[AggregatedRecordsWBaseline] = detector.runDetection(env)
+    val output: DataStream[AnomalyEvent] = detector.runDetection(env)
 
     val simpleContributorsFinder = new SimpleContributorsFinder()
 

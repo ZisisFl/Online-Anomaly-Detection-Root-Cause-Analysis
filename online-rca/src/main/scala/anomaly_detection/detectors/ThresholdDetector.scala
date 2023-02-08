@@ -20,7 +20,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
     this.spec = spec
   }
 
-  override def runDetection(env: StreamExecutionEnvironment): DataStream[AggregatedRecordsWBaseline] = {
+  override def runDetection(env: StreamExecutionEnvironment): DataStream[AnomalyEvent] = {
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
       "test3",
       env,
@@ -42,8 +42,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
       .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseWindowSize), Time.seconds(aggregationWindowSize)))
       .aggregate(new OffsetBaselineAggregator)
       .filter(record => isAnomaly(record.current))
-//      .map(record => AnomalyEvent(record))
-//      .map(record => (isAnomaly(record.current), record))
+      .map(record => AnomalyEvent(record))
   }
 
   private def valueTooHigh(value: Double): Boolean = {

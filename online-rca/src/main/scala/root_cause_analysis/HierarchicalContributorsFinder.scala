@@ -1,6 +1,6 @@
 package root_cause_analysis
 
-import models.{AggregatedRecordsWBaseline, Dimension, DimensionSummary, RCAResult}
+import models.{AggregatedRecordsWBaseline, AnomalyEvent, Dimension, DimensionSummary, RCAResult}
 import root_cause_analysis.HierarchicalContributorsCost.{computeChangeRatio, computeContribution}
 import utils.Types.{ChildDimension, MetricValue, ParentDimension}
 
@@ -13,19 +13,21 @@ class HierarchicalContributorsFinder extends Serializable {
 
   private final val MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE = 3d
 
-  def search(aggregatedRecordsWBaseline: AggregatedRecordsWBaseline): RCAResult = {
-    val currentTotal = aggregatedRecordsWBaseline.current
-    val baselineTotal = aggregatedRecordsWBaseline.baseline
+  def search(anomalyEvent: AnomalyEvent): RCAResult = {
+    val currentTotal = anomalyEvent.aggregatedRecordsWBaseline.current
+    val baselineTotal = anomalyEvent.aggregatedRecordsWBaseline.baseline
 
     RCAResult(
+      anomalyEvent.anomalyId,
+      anomalyEvent.detectedAt,
       currentTotal,
       baselineTotal,
       computeSummaries(
         currentTotal,
         baselineTotal,
-        aggregatedRecordsWBaseline.current_dimensions_breakdown,
-        aggregatedRecordsWBaseline.baseline_dimensions_breakdown,
-        aggregatedRecordsWBaseline.dimensions_hierarchy
+        anomalyEvent.aggregatedRecordsWBaseline.current_dimensions_breakdown,
+        anomalyEvent.aggregatedRecordsWBaseline.baseline_dimensions_breakdown,
+        anomalyEvent.aggregatedRecordsWBaseline.dimensions_hierarchy
       )
     )
   }

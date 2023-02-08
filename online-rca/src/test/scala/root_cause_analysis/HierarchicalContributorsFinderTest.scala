@@ -2,7 +2,7 @@ package root_cause_analysis
 
 import anomaly_detection.detectors.{ThresholdDetector, ThresholdDetectorSpec}
 import config.AppConfig
-import models.AggregatedRecordsWBaseline
+import models.{AggregatedRecordsWBaseline, AnomalyEvent}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -22,7 +22,7 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val output: DataStream[AggregatedRecordsWBaseline] = detector.runDetection(env)
+    val output: DataStream[AnomalyEvent] = detector.runDetection(env)
 
     val hierarchicalContributorsFinder = new HierarchicalContributorsFinder()
 
