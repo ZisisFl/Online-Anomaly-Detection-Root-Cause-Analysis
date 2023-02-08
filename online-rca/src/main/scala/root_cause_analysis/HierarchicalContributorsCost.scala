@@ -1,23 +1,25 @@
 package root_cause_analysis
 
+import org.apache.flink.annotation.VisibleForTesting
+
 object HierarchicalContributorsCost {
 // DimNameValueCostEntry
   // the changeRatio between baseline and current value of parent node.
 
   def compute(baselineValue: Double, currentValue: Double, parentRatio: Double, contribution: Double): Double = {
-    val checkedParentRation = parentRatio match {
+    val checkedParentRatio = parentRatio match {
       case 0 => 1d
       case _ => parentRatio
     }
 
     if (baselineValue != 0 && currentValue != 0) {
-      error(baselineValue, currentValue, checkedParentRation, contribution)
+      error(baselineValue, currentValue, checkedParentRatio, contribution)
     }
     else if (baselineValue == 0) {
-      errorWithEmptyBaseline(currentValue, checkedParentRation)
+      errorWithEmptyBaseline(currentValue, checkedParentRatio)
     }
     else if (currentValue == 0) {
-      errorWithEmptyCurrent(baselineValue, checkedParentRation)
+      errorWithEmptyCurrent(baselineValue, checkedParentRatio)
     }
     else 0 // baselineValue and currentValue are zeros. Set cost to zero so the node will be naturally aggregated to its parent
   }

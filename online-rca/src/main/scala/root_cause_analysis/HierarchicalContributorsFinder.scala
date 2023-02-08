@@ -1,6 +1,6 @@
 package root_cause_analysis
 
-import models.{AggregatedRecordsWBaseline, Dimension, DimensionStats}
+import models.{AggregatedRecordsWBaseline, Dimension, DimensionStats, RCAResult}
 import utils.Types.MetricValue
 
 /**
@@ -12,11 +12,20 @@ class HierarchicalContributorsFinder extends Serializable {
 
   private final val MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE = 3d
 
-  def search(aggregatedRecordsWBaseline: AggregatedRecordsWBaseline): Unit = {
+  def search(aggregatedRecordsWBaseline: AggregatedRecordsWBaseline): RCAResult = {
     val currentTotal = aggregatedRecordsWBaseline.current
     val baselineTotal = aggregatedRecordsWBaseline.baseline
 
-//    RCAResult(currentTotal, baselineTotal)
+    RCAResult(
+      currentTotal,
+      baselineTotal,
+      computeStats(
+        currentTotal,
+        baselineTotal,
+        aggregatedRecordsWBaseline.current_dimensions_breakdown,
+        aggregatedRecordsWBaseline.baseline_dimensions_breakdown
+      )
+    )
   }
 
   def computeStats(
@@ -41,11 +50,19 @@ class HierarchicalContributorsFinder extends Serializable {
       // Typically, users don't care nodes with small contribution to overall changes
       if (contributionToOverallChangePercentage < MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE) 0d
 
-      val parentRatio = 0d
-      val baselineSize = 0d
-      val currentSize = 0d
-      val baselineTotalSize = 0d
-      val currentTotalSize = 0d
+      /**
+       * According to the implementation of AdditiveCubeNode which is used to represent a node in the
+       * hierarchy graph for an additive metric get{Baseline|Current}Size() methods return {Baseline|Current}Value
+       * Implementation of AdditiveCubeNode in the original ThirdEye project
+       * thirdeye-pinot/src/main/java/org/apache/pinot/thirdeye/cube/additive/AdditiveCubeNode.java
+       * Other than AdditiveCubeNode there is also the implementation of RatioCubeNode for ratio metrics
+       */
+      val baselineSize = baselineValue
+      val currentSize = currentValue
+      val baselineTotalSize = baselineTotal
+      val currentTotalSize = currentTotal
+
+      val parentRatio = 1d
 
       val contribution = Stats.computeContribution(baselineSize, currentSize, baselineTotalSize, currentTotalSize)
 
@@ -56,5 +73,7 @@ class HierarchicalContributorsFinder extends Serializable {
         HierarchicalContributorsCost.compute(baselineValue, currentValue, parentRatio, contribution)
       )
     }).toList
+      .filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
+      .sortBy(-_.cost) // sort resulting list of DimensionStats by descending cost
   }
 }

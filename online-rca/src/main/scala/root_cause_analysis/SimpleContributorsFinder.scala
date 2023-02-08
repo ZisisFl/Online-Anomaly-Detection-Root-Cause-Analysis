@@ -15,8 +15,8 @@ class SimpleContributorsFinder extends Serializable {
     val baselineTotal = aggregatedRecordsWBaseline.baseline
 
     RCAResult(
-      aggregatedRecordsWBaseline.current,
-      aggregatedRecordsWBaseline.baseline,
+      currentTotal,
+      baselineTotal,
       computeStats(
         currentTotal,
         baselineTotal,
@@ -63,6 +63,8 @@ class SimpleContributorsFinder extends Serializable {
         baselineTotal,
         SimpleContributorsCost.compute(valueChangePercentage, contributionChangePercentage, contributionToOverallChangePercentage)
       )
-    }).toList.sortBy(-_.cost) // sort resulting list by descending cost
+    }).toList
+      .filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
+      .sortBy(-_.cost) // sort resulting list of DimensionStats by descending cost
   }
 }

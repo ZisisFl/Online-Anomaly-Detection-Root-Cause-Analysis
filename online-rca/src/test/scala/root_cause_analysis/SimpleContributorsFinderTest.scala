@@ -26,11 +26,10 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
 
     val simpleContributorsFinder = new SimpleContributorsFinder()
 
-
     output
       .map(anomaly => simpleContributorsFinder.search(anomaly))
       .print()
 
-    env.execute()
+    env.execute("Simple Contributors Finder test")
   }
 }

@@ -24,14 +24,13 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
 
     val output: DataStream[AggregatedRecordsWBaseline] = detector.runDetection(env)
 
-    val simpleContributorsFinder = new SimpleContributorsFinder()
-
+    val hierarchicalContributorsFinder = new HierarchicalContributorsFinder()
 
     output
-      .map(anomaly => simpleContributorsFinder.search(anomaly))
+      .map(anomaly => hierarchicalContributorsFinder.search(anomaly))
       .print()
 
-    env.execute()
+    env.execute("Hierarchical Contributors Finder test")
   }
 
   "errorWithEmptyBaseline function" should "result to infinity" in {
