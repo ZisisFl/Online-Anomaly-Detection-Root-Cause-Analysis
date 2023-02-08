@@ -2,7 +2,7 @@ package anomaly_detection.detectors
 
 import anomaly_detection.AnomalyDetector
 import anomaly_detection.aggregators.{OffsetBaselineAggregator, SumAggregator}
-import models.{AggregatedRecordsWBaseline, AnomalyEvent, InputRecord}
+import models.{AnomalyEvent, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows
@@ -22,7 +22,7 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
 
   override def runDetection(env: StreamExecutionEnvironment): DataStream[AnomalyEvent] = {
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test3",
+      "test2",
       env,
       1,
       "earliest"
@@ -38,11 +38,12 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
       .assignAscendingTimestamps(record => record.epoch)
       .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
       .aggregate(new SumAggregator)
-      .assignAscendingTimestamps(agg_record => agg_record.window_starting_epoch)
       .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseWindowSize), Time.seconds(aggregationWindowSize)))
       .aggregate(new OffsetBaselineAggregator)
       .filter(record => isAnomaly(record.current))
       .map(record => AnomalyEvent(record))
+
+    // watermark issue https://stackoverflow.com/questions/54584383/reassigning-timestamps-watermarks-in-flink
   }
 
   private def valueTooHigh(value: Double): Boolean = {
