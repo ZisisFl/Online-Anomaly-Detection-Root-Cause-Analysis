@@ -13,7 +13,8 @@ class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, Aggre
     0,
     0,
     0,
-    Seq[(Dimension, Double)]()
+    Seq[(Dimension, Double)](),
+    Map[ChildDimension, ParentDimension]()
   )
 
   override def add(value: InputRecord, accumulator: SumAccumulator): SumAccumulator = {
@@ -23,7 +24,8 @@ class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, Aggre
         accumulator.current + value.value,
         value.epoch,
         accumulator.records_accumulated + 1,
-        accumulator.dimensions_with_metric ++ value.dimensions.values.map(dim => (dim, value.value))
+        accumulator.dimensions_with_metric ++ value.dimensions.values.map(dim => (dim, value.value)),
+        accumulator.dimensions_hierarchy ++ value.dimensions_hierarchy
       )
     }
     else {
@@ -31,7 +33,8 @@ class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, Aggre
         accumulator.current + value.value,
         accumulator.window_starting_epoch,
         accumulator.records_accumulated + 1,
-        accumulator.dimensions_with_metric ++ value.dimensions.values.map(dim => (dim, value.value))
+        accumulator.dimensions_with_metric ++ value.dimensions.values.map(dim => (dim, value.value)),
+        accumulator.dimensions_hierarchy ++ value.dimensions_hierarchy
       )
     }
   }
@@ -41,7 +44,8 @@ class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, Aggre
       accumulator.current,
       accumulator.window_starting_epoch,
       accumulator.records_accumulated,
-      accumulator.dimensions_with_metric.groupBy(_._1).mapValues(_.map(_._2).sum)
+      accumulator.dimensions_with_metric.groupBy(_._1).mapValues(_.map(_._2).sum),
+      accumulator.dimensions_hierarchy
     )
   }
 
@@ -50,7 +54,8 @@ class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, Aggre
       a.current + b.current,
       a.window_starting_epoch.min(b.window_starting_epoch),
       a.records_accumulated + b.records_accumulated,
-      a.dimensions_with_metric ++ b.dimensions_with_metric
+      a.dimensions_with_metric ++ b.dimensions_with_metric,
+      a.dimensions_hierarchy ++ b.dimensions_hierarchy
     )
   }
 }

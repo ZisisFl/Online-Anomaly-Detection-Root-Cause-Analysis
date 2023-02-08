@@ -2,6 +2,7 @@ package models
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import utils.Types.{ChildDimension, ParentDimension}
 
 class ModelsInit extends AnyFlatSpec {
 
@@ -15,8 +16,9 @@ class ModelsInit extends AnyFlatSpec {
       id = "fgt",
       timestamp = "1998-01-01T22:07:58+00:00",
       value = 234.0f,
-      dimensions= Map("sm_type" -> Dimension("sm_type", "OVERNIGHT")))
-
+      dimensions = Map("sm_type" -> Dimension("sm_type", "OVERNIGHT")),
+      dimensions_hierarchy = Map[ChildDimension, ParentDimension]()
+    )
     print(input_record)
   }
 }

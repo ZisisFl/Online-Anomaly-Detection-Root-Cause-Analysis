@@ -4,6 +4,7 @@ import config.AppConfig
 import models.InputRecord
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
+import utils.DimensionHierarchiesBuilder.buildHierarchies
 import utils.dimension.DimensionsBuilder
 
 object InputRecordStreamBuilder {
@@ -31,10 +32,12 @@ object InputRecordStreamBuilder {
   }
 
   private def buildInputRecord(record: ObjectNode): InputRecord = {
+    val dimensions = DimensionsBuilder.buildDimensionsMap(record)
     InputRecord(
       timestamp = record.get("value").get(AppConfig.InputStream.TIMESTAMP_FIELD).textValue(),
       value = record.get("value").get(AppConfig.InputStream.VALUE_FIELD).doubleValue(),
-      dimensions = DimensionsBuilder.buildDimensionsMap(record)
+      dimensions = dimensions,
+      dimensions_hierarchy = buildHierarchies(dimensions)
     )
   }
 }
