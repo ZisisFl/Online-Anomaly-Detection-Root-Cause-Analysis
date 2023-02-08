@@ -1,6 +1,7 @@
 package root_cause_analysis
 
-import models.{AggregatedRecordsWBaseline, Dimension, DimensionStats, RCAResult}
+import models.{AggregatedRecordsWBaseline, Dimension, DimensionSummary, RCAResult}
+import root_cause_analysis.HierarchicalContributorsCost.{computeChangeRatio, computeContribution}
 import utils.Types.{ChildDimension, MetricValue, ParentDimension}
 
 /**
@@ -19,7 +20,7 @@ class HierarchicalContributorsFinder extends Serializable {
     RCAResult(
       currentTotal,
       baselineTotal,
-      computeStats(
+      computeSummaries(
         currentTotal,
         baselineTotal,
         aggregatedRecordsWBaseline.current_dimensions_breakdown,
@@ -29,59 +30,72 @@ class HierarchicalContributorsFinder extends Serializable {
     )
   }
 
-  def computeStats(
+  def computeSummaries(
                     currentTotal: Double,
                     baselineTotal: Double,
                     currentDimensionsBreakdown: Map[Dimension, MetricValue],
                     baselineDimensionsBreakdown: Map[Dimension, MetricValue],
                     dimensionsHierarchy: Map[ChildDimension, ParentDimension]
-                  ): List[DimensionStats] = {
+                  ): List[DimensionSummary] = {
 
     // some Dimensions(name, value) tuples are not present in both tables - fill those with zeroes
     (currentDimensionsBreakdown.keySet ++ baselineDimensionsBreakdown.keySet).map(dim => {
       val currentValue: Double = currentDimensionsBreakdown.getOrElse(dim, 0)
       val baselineValue: Double = baselineDimensionsBreakdown.getOrElse(dim, 0)
 
-      val contributionToOverallChangePercentage = Stats.computeContributionToOverallChangePercentage(
-        baselineValue,
-        currentValue,
-        baselineTotal,
-        currentTotal
-      )
+      // compute stats
+      val stats = new Stats(baselineValue, currentValue, baselineTotal, currentTotal)
 
-      // Typically, users don't care nodes with small contribution to overall changes
-      if (contributionToOverallChangePercentage < MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE) 0d
+      // Typically, users don't care about nodes with small contribution to overall changes
+      // If contributionToOverallChangePercentage isn't above threshold then cost is 0
+      if (Math.abs(stats.contributionToOverallChangePercentage) < MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE) {
+        DimensionSummary(
+          dim,
+          currentValue,
+          baselineValue,
+          0d,
+          stats.valueChangePercentage,
+          stats.contributionChangePercentage,
+          stats.contributionToOverallChangePercentage
+        )
+      }
+      else{
+        /**
+         * According to the implementation of AdditiveCubeNode which is used to represent a node in the
+         * hierarchy graph for an additive metric get{Baseline|Current}Size() methods return {Baseline|Current}Value
+         * Implementation of AdditiveCubeNode in the original ThirdEye project
+         * thirdeye-pinot/src/main/java/org/apache/pinot/thirdeye/cube/additive/AdditiveCubeNode.java
+         * Other than AdditiveCubeNode there is also the implementation of RatioCubeNode for ratio metrics
+         */
+        val baselineSize = baselineValue
+        val currentSize = currentValue
+        val baselineTotalSize = baselineTotal
+        val currentTotalSize = currentTotal
+        val parentCurrentValue = getParentValue(dim, dimensionsHierarchy, currentDimensionsBreakdown, currentTotal)
+        val parentBaselineValue = getParentValue(dim, dimensionsHierarchy, baselineDimensionsBreakdown, baselineTotal)
 
-      /**
-       * According to the implementation of AdditiveCubeNode which is used to represent a node in the
-       * hierarchy graph for an additive metric get{Baseline|Current}Size() methods return {Baseline|Current}Value
-       * Implementation of AdditiveCubeNode in the original ThirdEye project
-       * thirdeye-pinot/src/main/java/org/apache/pinot/thirdeye/cube/additive/AdditiveCubeNode.java
-       * Other than AdditiveCubeNode there is also the implementation of RatioCubeNode for ratio metrics
-       */
-      val baselineSize = baselineValue
-      val currentSize = currentValue
-      val baselineTotalSize = baselineTotal
-      val currentTotalSize = currentTotal
-      val parentCurrentValue = getParentValue(dim, dimensionsHierarchy, currentDimensionsBreakdown, currentTotal)
-      val parentBaselineValue = getParentValue(dim, dimensionsHierarchy, baselineDimensionsBreakdown, baselineTotal)
+        val parentRatio = computeChangeRatio(parentBaselineValue, parentCurrentValue)
 
-      val parentRatio = Stats.computeChangeRatio(parentBaselineValue, parentCurrentValue)
+        val contribution = computeContribution(baselineSize, currentSize, baselineTotalSize, currentTotalSize)
 
-      val contribution = Stats.computeContribution(baselineSize, currentSize, baselineTotalSize, currentTotalSize)
+        val cost = HierarchicalContributorsCost.compute(baselineValue, currentValue, parentRatio, contribution)
 
-      DimensionStats(
-        dim,
-        currentValue,
-        baselineTotal,
-        HierarchicalContributorsCost.compute(baselineValue, currentValue, parentRatio, contribution)
-      )
+        DimensionSummary(
+          dim,
+          currentValue,
+          baselineValue,
+          cost,
+          stats.valueChangePercentage,
+          stats.contributionChangePercentage,
+          stats.contributionToOverallChangePercentage
+        )
+      }
     }).toList
       .filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
       .sortBy(-_.cost) // sort resulting list of DimensionStats by descending cost
   }
 
-  def getParentValue(
+  private def getParentValue(
                  childDim: Dimension,
                  dimensionsHierarchy: Map[ChildDimension, ParentDimension],
                  dimensionsBreakdown: Map[Dimension, MetricValue],

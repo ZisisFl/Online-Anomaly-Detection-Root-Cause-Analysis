@@ -1,6 +1,6 @@
 package root_cause_analysis
 
-import models.{AggregatedRecordsWBaseline, Dimension, DimensionStats, RCAResult}
+import models.{AggregatedRecordsWBaseline, Dimension, DimensionSummary, RCAResult}
 import utils.Types.MetricValue
 
 class SimpleContributorsFinder extends Serializable {
@@ -17,7 +17,7 @@ class SimpleContributorsFinder extends Serializable {
     RCAResult(
       currentTotal,
       baselineTotal,
-      computeStats(
+      computeSummaries(
         currentTotal,
         baselineTotal,
         aggregatedRecordsWBaseline.current_dimensions_breakdown,
@@ -26,45 +26,37 @@ class SimpleContributorsFinder extends Serializable {
     )
   }
 
-  private def computeStats(
+  private def computeSummaries(
                     currentTotal: Double,
                     baselineTotal: Double,
                     currentDimensionsBreakdown: Map[Dimension, MetricValue],
                     baselineDimensionsBreakdown: Map[Dimension, MetricValue]
-                  ): List[DimensionStats] = {
+                  ): List[DimensionSummary] = {
 
     // some Dimensions(name, value) tuples are not present in both tables - fill those with zeroes
     (currentDimensionsBreakdown.keySet ++ baselineDimensionsBreakdown.keySet).map(dim => {
       val currentValue: Double = currentDimensionsBreakdown.getOrElse(dim, 0)
       val baselineValue: Double = baselineDimensionsBreakdown.getOrElse(dim, 0)
 
-      val valueChangePercentage = Stats.computeValueChangePercentage(
-        baselineValue,
-        currentValue
+      val stats = new Stats(baselineValue, currentValue, baselineTotal, currentTotal)
+
+      val cost = SimpleContributorsCost.compute(
+        stats.valueChangePercentage,
+        stats.contributionChangePercentage,
+        stats.contributionToOverallChangePercentage
       )
 
-      val contributionChangePercentage = Stats.computeContributionChangePercentage(
-        baselineValue,
-        currentValue,
-        baselineTotal,
-        currentTotal
-      )
-
-      val contributionToOverallChangePercentage = Stats.computeContributionToOverallChangePercentage(
-        baselineValue,
-        currentValue,
-        baselineTotal,
-        currentTotal
-      )
-
-      DimensionStats(
+      DimensionSummary(
         dim,
         currentValue,
-        baselineTotal,
-        SimpleContributorsCost.compute(valueChangePercentage, contributionChangePercentage, contributionToOverallChangePercentage)
+        baselineValue,
+        cost,
+        stats.valueChangePercentage,
+        stats.contributionChangePercentage,
+        stats.contributionToOverallChangePercentage
       )
     }).toList
-      .filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
+      //.filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
       .sortBy(-_.cost) // sort resulting list of DimensionStats by descending cost
   }
 }

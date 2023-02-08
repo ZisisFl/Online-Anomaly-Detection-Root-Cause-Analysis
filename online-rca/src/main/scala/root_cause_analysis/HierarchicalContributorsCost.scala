@@ -1,10 +1,7 @@
 package root_cause_analysis
 
-import org.apache.flink.annotation.VisibleForTesting
-
 object HierarchicalContributorsCost {
-// DimNameValueCostEntry
-  // the changeRatio between baseline and current value of parent node.
+  private final val EPSILON = 0.00001
 
   def compute(baselineValue: Double, currentValue: Double, parentRatio: Double, contribution: Double): Double = {
     val checkedParentRatio = parentRatio match {
@@ -68,5 +65,33 @@ object HierarchicalContributorsCost {
       case _ => parentRatio
     })
     -baselineValue * logExpRatio
+  }
+
+  /**
+   * Used for hierarchical contributors algorithm according to implementation found
+   * thirdeye-pinot/src/main/java/org/apache/pinot/thirdeye/cube/cost/BalancedCostFunction.java
+   * Contribution in an additive (AdditiveCubeNode RatioCubeNode)
+   *
+   * @param baselineSize
+   * @param currentSize
+   * @param baselineTotalSize
+   * @param currentTotalSize
+   * @return
+   */
+  def computeContribution(
+                           baselineSize: Double,
+                           currentSize: Double,
+                           baselineTotalSize: Double,
+                           currentTotalSize: Double
+                         ): Double = {
+
+    val contribution = (baselineSize + currentSize) / (baselineTotalSize + currentTotalSize)
+
+    if (Math.abs(0d - contribution) < EPSILON) 0d
+    else contribution
+  }
+
+  def computeChangeRatio(baseline: Double, current: Double): Double = {
+    current / baseline
   }
 }

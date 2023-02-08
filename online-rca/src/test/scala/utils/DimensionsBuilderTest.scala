@@ -16,6 +16,4 @@ class DimensionsBuilderTest extends AnyFlatSpec {
 
     print(hierarchiesMap.filter(item => item._2 == "root"))
   }
-
-
 }
