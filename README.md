@@ -32,8 +32,10 @@ DB_NAME=tpcds
 KAFKA_BROKERS=localhost:9093
 ```
 
-Run producer
-python kafka_producer/sql_to_kafka.py --table_name web_sales_cube1 --topic_name test1 --batch_size 10000
+Run producer example:
+```
+python kafka_producer/sql_to_kafka.py --table_name web_sales_cube1 --topic_name test1 --batch_size 10000 --limit 2000
+```
 
 java 11
 scala 2.12
