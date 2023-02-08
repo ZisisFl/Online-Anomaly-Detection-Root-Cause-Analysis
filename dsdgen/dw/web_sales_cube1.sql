@@ -21,6 +21,7 @@ AND web_sales.ws_sold_time_sk = time_dim.t_time_sk
 AND web_sales.ws_item_sk = item.i_item_sk
 AND web_sales.ws_ship_addr_sk = customer_address.ca_address_sk
 AND web_sales.ws_ship_mode_sk = ship_mode.sm_ship_mode_sk
+AND ws_quantity is not null
 
 -- https://www.postgresqltutorial.com/postgresql-date-functions/postgresql-date_trunc/
 select sum(ws_ext_list_price) as sum_ws_ext_list_price, DATE_TRUNC('hour', sale_at), count(*) as number_of_sales
