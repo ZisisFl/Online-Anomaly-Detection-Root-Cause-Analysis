@@ -41,6 +41,14 @@ java 11
 scala 2.12
 
 
+# Flink
+## To generate jar of jobs
+Run on project folder `sbt assembly`  
+The final jar is on folder `/target/scala-2.12/online-rca-0.1.jar`
+
+To start docker stack with Flink
+docker-compose --profile flink-cluster up -d
+
 Docker compose
 Flink UI http://localhost:8081/#/overview
 

@@ -1,10 +1,11 @@
-val scalaMainVersion = "2.12"
-val flinkVersion = "1.13.2"
-
 name := "online-rca"
 organization := "auth.dws"
 version := "0.1"
+
+val scalaMainVersion = "2.12"
 ThisBuild / scalaVersion := scalaMainVersion + ".12"
+
+val flinkVersion = "1.13.2"
 
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
@@ -25,7 +26,7 @@ lazy val root = (project in file("."))
 assembly / mainClass := Some("jobs.MainJob")
 
 // make run command include the provided dependencies
-Compile / run  := Defaults.runTask(
+Compile / run := Defaults.runTask(
   Compile / fullClasspath,
   Compile / run / mainClass,
   Compile / run / runner
@@ -37,3 +38,6 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption := (assembly / assemblyOption).value.copy(includeScala = false)
+
+// to prevent running tests
+assembly / test := {}
