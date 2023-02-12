@@ -30,8 +30,6 @@ object MainJob {
 
     spec.min = 3000.0f
     spec.max = 5000.0f
-    spec.metric = "ws_quantity"
-    spec.timestamp = "sale_at"
 
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)

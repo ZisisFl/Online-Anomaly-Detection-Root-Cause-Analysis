@@ -2,10 +2,10 @@ package anomaly_detection.detectors
 
 import anomaly_detection.AnomalyDetector
 import anomaly_detection.aggregators.{OffsetBaselineAggregator, SumAggregator}
-import models.{AggregatedRecords, AnomalyEvent, InputRecord}
+import models.{AggregatedRecords, AggregatedRecordsWBaseline, AnomalyEvent, InputRecord}
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.api.scala.createTypeInformation
-import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows
+import org.apache.flink.streaming.api.windowing.assigners.{SlidingEventTimeWindows, TumblingEventTimeWindows}
 import org.apache.flink.streaming.api.windowing.time.Time
 
 class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
@@ -15,34 +15,31 @@ class ThresholdDetector extends AnomalyDetector[ThresholdDetectorSpec] {
     if (spec.min >= spec.max) {
       throw new ArithmeticException("You cannot set a min threshold higher or equal to max threshold")
     }
-
     this.spec = spec
   }
 
   override def runDetection(inputStream: DataStream[InputRecord]): DataStream[AnomalyEvent] = {
 
-    val aggregationWindowSize = 30
-    val aggregationWindowSlide = 10
-
-    val numberOfOffsetWindows = 2
-    val rootCauseWindowSize = aggregationWindowSize * numberOfOffsetWindows
-
-    // isolate aggregation
-//        val aggregatedRecordsStream: DataStream[AggregatedRecords] = inputStream
-//          .assignAscendingTimestamps(_.epoch)
-//          .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
-//          .aggregate(new SumAggregator)
-
-    inputStream
+    // aggregation
+    val aggregatedRecordsStream: DataStream[AggregatedRecords] = inputStream
       .assignAscendingTimestamps(_.epoch)
-      .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
+      .windowAll(SlidingEventTimeWindows.of(Time.seconds(spec.aggregationWindowSize), Time.seconds(spec.aggregationWindowSlide)))
+//      .windowAll(TumblingEventTimeWindows.of(Time.seconds(spec.aggregationWindowSize)))
       .aggregate(new SumAggregator)
-      .windowAll(SlidingEventTimeWindows.of(Time.seconds(rootCauseWindowSize), Time.seconds(aggregationWindowSize)))
+//    aggregatedRecordsStream.print()
+
+    // baseline
+    val aggregatedRecordsWBaselineStream: DataStream[AggregatedRecordsWBaseline] = aggregatedRecordsStream
+      .countWindowAll(spec.elementsInBaselineOffsetWindow, 1)
       .aggregate(new OffsetBaselineAggregator)
+//    aggregatedRecordsWBaselineStream.print()
+
+    // anomaly detection
+    val anomalyEventStream: DataStream[AnomalyEvent] = aggregatedRecordsWBaselineStream
       .filter(record => isAnomaly(record.current))
       .map(record => AnomalyEvent(record))
 
-    // watermark issue https://stackoverflow.com/questions/54584383/reassigning-timestamps-watermarks-in-flink
+    anomalyEventStream
   }
 
   private def valueTooHigh(value: Double): Boolean = {
