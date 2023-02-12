@@ -2,7 +2,7 @@ package anomaly_detection.detectors
 
 import anomaly_detection.aggregators.{OffsetBaselineAggregator, SumAggregator}
 import config.AppConfig
-import models.{AggregatedRecords, AggregatedRecordsWBaseline, InputRecord}
+import models.{AggregatedRecordsWBaseline, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.streaming.api.windowing.assigners.{GlobalWindows, TumblingEventTimeWindows}
 import org.apache.flink.streaming.api.windowing.evictors.CountEvictor

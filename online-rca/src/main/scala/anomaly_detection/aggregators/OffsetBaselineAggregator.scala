@@ -1,70 +1,63 @@
 package anomaly_detection.aggregators
 
-import models.accumulators.OffsetBaselineAccumulator
 import models.{AggregatedRecords, AggregatedRecordsWBaseline, Dimension}
 import org.apache.flink.api.common.functions.AggregateFunction
-import utils.Types.{ChildDimension, MetricValue, ParentDimension}
+import utils.Types.MetricValue
 
 /**
  * Creates records containing baseline and current values and dimensions
  */
-class OffsetBaselineAggregator extends AggregateFunction[AggregatedRecords, OffsetBaselineAccumulator, AggregatedRecordsWBaseline]{
-  override def createAccumulator(): OffsetBaselineAccumulator = OffsetBaselineAccumulator(
-    0,
-    Map[Dimension, MetricValue](),
-    0,
-    Seq[(Dimension, Double)](),
-    Map[ChildDimension, ParentDimension](),
-    0
-  )
+class OffsetBaselineAggregator extends AggregateFunction[AggregatedRecords, Seq[AggregatedRecords], AggregatedRecordsWBaseline]{
+  override def createAccumulator(): Seq[AggregatedRecords] = Seq[AggregatedRecords]()
 
-  override def add(value: AggregatedRecords, accumulator: OffsetBaselineAccumulator): OffsetBaselineAccumulator = {
-    // if current record has no dimensions this could be a problem
-    if (accumulator.current_dimensions_breakdown.isEmpty) {
-      OffsetBaselineAccumulator(
-        value.current,
-        value.dimensions_breakdown,
-        accumulator.baseline,
-        accumulator.baseline_dimensions,
-        accumulator.dimensions_hierarchy ++ value.dimensions_hierarchy,
-        accumulator.records_in_baseline_offset
-      )
-    }
-    else {
-      OffsetBaselineAccumulator(
-        accumulator.current,
-        accumulator.current_dimensions_breakdown,
-        accumulator.baseline + value.current,
-        accumulator.baseline_dimensions ++ value.dimensions_breakdown.toSeq,
-        accumulator.dimensions_hierarchy ++ value.dimensions_hierarchy,
-        accumulator.records_in_baseline_offset + 1
-      )
-    }
+  override def add(value: AggregatedRecords, accumulator: Seq[AggregatedRecords]): Seq[AggregatedRecords] = {
+    accumulator :+ value
   }
 
   /**
    * Perform averaging to get offset baseline values
    * @param accumulator
    */
-  override def getResult(accumulator: OffsetBaselineAccumulator): AggregatedRecordsWBaseline = {
-    AggregatedRecordsWBaseline(
-      accumulator.current,
-      accumulator.baseline / accumulator.records_in_baseline_offset, // apply averaging
-      accumulator.current_dimensions_breakdown,
-      accumulator.baseline_dimensions.groupBy(_._1).mapValues(x => x.map(_._2).sum/accumulator.records_in_baseline_offset), // apply averaging in dimensions
-      // accumulator.baseline_dimensions.groupBy(_._1).mapValues(x => x.map(_._2).sum/x.length) // this averaging gives false metric overall
-      accumulator.dimensions_hierarchy,
-      accumulator.records_in_baseline_offset)
+  override def getResult(accumulator: Seq[AggregatedRecords]): AggregatedRecordsWBaseline = {
+    val result = findLast(accumulator)
+
+    val last = result._1
+    val rest = result._2
+
+    if (rest.isEmpty) {
+      AggregatedRecordsWBaseline(
+        current = last.current,
+        baseline = Double.NaN,
+        current_dimensions_breakdown = last.dimensions_breakdown,
+        baseline_dimensions_breakdown = Map[Dimension, MetricValue](),
+        dimensions_hierarchy = last.dimensions_hierarchy,
+        records_in_baseline_offset = 0)
+    }
+    else {
+      AggregatedRecordsWBaseline(
+        current = last.current,
+        baseline = rest.map(_.current).sum / rest.length,
+        current_dimensions_breakdown = last.dimensions_breakdown,
+        baseline_dimensions_breakdown = rest.map(_.dimensions_breakdown).reduceLeft(_++_).groupBy(_._1).mapValues(x => x.values.sum / rest.length),
+        dimensions_hierarchy = rest.map(_.dimensions_hierarchy).reduceLeft(_++_),
+        records_in_baseline_offset = rest.length
+      )
+    }
   }
 
-  override def merge(a: OffsetBaselineAccumulator, b: OffsetBaselineAccumulator): OffsetBaselineAccumulator = {
-    OffsetBaselineAccumulator(
-      a.current + b.current,
-      a.current_dimensions_breakdown,
-      a.baseline + b.baseline,
-      a.baseline_dimensions ++ b.baseline_dimensions,
-      a.dimensions_hierarchy ++ b.dimensions_hierarchy,
-      a.records_in_baseline_offset + b.records_in_baseline_offset
-    )
+  override def merge(a: Seq[AggregatedRecords], b: Seq[AggregatedRecords]): Seq[AggregatedRecords] = {
+    a ++ b
+  }
+
+  /**
+   * Finds the last record in the accumulator according to window_starting_epoch
+   * @param accumulator
+   * @return The latest record and the accumulator without the latest record
+   */
+  private def findLast(accumulator: Seq[AggregatedRecords]): (AggregatedRecords, Seq[AggregatedRecords]) = {
+    val last: AggregatedRecords = accumulator.maxBy(_.window_starting_epoch)
+    val rest: Seq[AggregatedRecords] = accumulator.filter(_ != last)
+
+    (last, rest)
   }
 }

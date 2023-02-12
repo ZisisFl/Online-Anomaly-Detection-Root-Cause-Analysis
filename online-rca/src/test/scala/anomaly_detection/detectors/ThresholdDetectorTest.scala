@@ -53,18 +53,18 @@ class ThresholdDetectorTest extends AnyFlatSpec{
     )
 
     val aggregationWindowSize = 30
-    val aggregationWindowSlide = 10
+    val aggregationWindowSlide = 60
 
     val aggregatedRecordsStream: DataStream[AggregatedRecords] = inputStream
       .assignAscendingTimestamps(_.epoch)
-      .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
-      //      .windowAll(TumblingEventTimeWindows.of(Time.seconds(aggregationWindowSize)))
+//      .windowAll(SlidingEventTimeWindows.of(Time.seconds(aggregationWindowSize), Time.seconds(aggregationWindowSlide)))
+      .windowAll(TumblingEventTimeWindows.of(Time.seconds(aggregationWindowSize)))
       .aggregate(new SumAggregator)
 
     val aggregatedRecordsWBaselineStream = aggregatedRecordsStream
       .countWindowAll(10, 1)
       .aggregate(new OffsetBaselineAggregator)
-        aggregatedRecordsWBaselineStream.print()
+    aggregatedRecordsWBaselineStream.print()
 
 //    val output: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
