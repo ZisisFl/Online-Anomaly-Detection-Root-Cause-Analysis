@@ -11,15 +11,15 @@ import utils.Types.{ChildDimension, ParentDimension}
 class SumAggregator extends AggregateFunction[InputRecord, SumAccumulator, AggregatedRecords] {
   override def createAccumulator(): SumAccumulator = SumAccumulator(
     0,
-    0,
+    3676225996L, // init with a very big epoch, this is year 2086
     0,
     Seq[(Dimension, Double)](),
     Map[ChildDimension, ParentDimension]()
   )
 
   override def add(value: InputRecord, accumulator: SumAccumulator): SumAccumulator = {
-    // init accumulator.start_timestamp with the first record creating the window
-    if (accumulator.window_starting_epoch == 0) {
+    // keep the smallest epoch in the accumulator
+    if (accumulator.window_starting_epoch > value.epoch) {
       SumAccumulator(
         accumulator.current + value.value,
         value.epoch,
