@@ -14,7 +14,7 @@ SELECT web_sales.ws_item_sk,
     trim(TRAILING FROM ship_mode.sm_type) as sm_type,
     trim(TRAILING FROM ship_mode.sm_code) as sm_code,
     trim(TRAILING FROM ship_mode.sm_carrier) as sm_carrier,
-    to_timestamp(CONCAT(to_char(date_dim.d_date, 'YYYY-MM-DD'), ' ', time_dim.t_hour, ':', time_dim.t_minute, ':', time_dim.t_second), 'YYYY-MM-DD HH24:MI:SS') as sale_at
+    to_timestamp(CONCAT(to_char(date_dim.d_date, 'YYYY-MM-DD'), ' ', time_dim.t_hour, ':', time_dim.t_minute, ':', time_dim.t_second), 'YYYY-MM-DD HH24:MI:SS')::timestamp as sale_at
 FROM web_sales, date_dim, time_dim, item, customer_address, ship_mode
 WHERE web_sales.ws_sold_date_sk = date_dim.d_date_sk
 AND web_sales.ws_sold_time_sk = time_dim.t_time_sk
