@@ -65,11 +65,11 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
             timestamp = record.get("value").get("sale_at").textValue(),
             value = record.get("value").get("ws_ext_list_price").doubleValue(),
             dimensions = Map(
-              "ca_city" -> Dimension("ca_city", record.get("value").get("ca_city").textValue()),
-              "ca_country" -> Dimension("ca_county", record.get("value").get("ca_country").textValue())
+              "ca_city" -> Dimension("ca_city", record.get("value").get("ca_city").textValue(), "group_name"),
+              "ca_country" -> Dimension("ca_county", record.get("value").get("ca_country").textValue(), "group_name")
             ),
-            dimensions_hierarchy = Map(Dimension("ca_city", record.get("value").get("ca_city").textValue()) ->
-              Dimension("ca_county", record.get("value").get("ca_county").textValue()))
+            dimensions_hierarchy = Map(Dimension("ca_city", record.get("value").get("ca_city").textValue(), "group_name") ->
+              Dimension("ca_county", record.get("value").get("ca_county").textValue(), "group_name"))
           )
         )
     }

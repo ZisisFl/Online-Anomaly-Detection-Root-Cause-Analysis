@@ -10,11 +10,24 @@ object DimensionsBuilder {
   private def buildDimension(dimName: String, record: ObjectNode): Dimension = {
     val dimensionConfig = DIMENSION_DEFINITIONS.getConfig(dimName)
     val dimensionValueType = dimensionConfig.getString("value_type")
+    val dimensionGroup = dimensionConfig.getString("group")
 
     dimensionValueType match {
-      case "string" => new StringDimensionParser().parseValue(name = dimName, value = record.get("value").get(dimName).textValue())
-      case "int" => new IntDimensionParser().parseValue(name = dimName, value = record.get("value").get(dimName).intValue())
-      case "bool" => new BooleanDimensionParser().parseValue(name = dimName, value = record.get("value").get(dimName).booleanValue())
+      case "string" => new StringDimensionParser().parseValue(
+        name = dimName,
+        value = record.get("value").get(dimName).textValue(),
+        group = dimensionGroup
+      )
+      case "int" => new IntDimensionParser().parseValue(
+        name = dimName,
+        value = record.get("value").get(dimName).intValue(),
+        group = dimensionGroup
+      )
+      case "bool" => new BooleanDimensionParser().parseValue(
+        name = dimName,
+        value = record.get("value").get(dimName).booleanValue(),
+        group = dimensionGroup
+      )
     }
   }
 
