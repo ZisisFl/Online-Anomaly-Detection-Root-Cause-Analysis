@@ -11,7 +11,7 @@ case class InputRecord(
                         value: Double,
                         dimensions: Map[DimensionName, Dimension],
                         dimensions_hierarchy: Map[ChildDimension, ParentDimension],
-                        timestampPattern: String = "yyyy-MM-DD'T'HH:mm:ssZZZZZ"
+                        timestampPattern: String = "yyyy-MM-dd'T'HH:mm:ss"
                     ) extends Serializable {
 
   val parsed_timestamp: LocalDateTime =

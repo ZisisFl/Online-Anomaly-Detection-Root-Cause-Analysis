@@ -49,6 +49,6 @@ object AppConfig {
     final val VALUE_FIELD = conf.getString("input_stream.value_field")
     final val DIMENSION_NAMES = conf.getStringList("input_stream.dimensions.names").asScala.toList
     final val DIMENSION_DEFINITIONS = conf.getConfig("input_stream.dimensions.definitions")
-    final val DIMENSION_HIERARCHIES = constructDimensionHierarchiesMap()//Map("ca_city" -> "ca_county", "ca_county" -> "root")
+    final val DIMENSION_HIERARCHIES = constructDimensionHierarchiesMap()
   }
 }
