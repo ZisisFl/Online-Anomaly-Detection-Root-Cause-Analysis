@@ -8,7 +8,7 @@ import utils.Types.{ChildDimension, MetricValue, ParentDimension}
 /**
  * Creates records containing baseline and current values and dimensions
  */
-@Deprecated
+@deprecated
 class OffsetBaselineAggregatorOld extends AggregateFunction[AggregatedRecords, OffsetBaselineAccumulator, AggregatedRecordsWBaseline]{
   override def createAccumulator(): OffsetBaselineAccumulator = OffsetBaselineAccumulator(
     0,

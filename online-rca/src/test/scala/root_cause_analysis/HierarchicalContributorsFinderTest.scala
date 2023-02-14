@@ -3,6 +3,7 @@ package root_cause_analysis
 import anomaly_detection.detectors.{ThresholdDetector, ThresholdDetectorSpec}
 import config.AppConfig
 import models.{AnomalyEvent, InputRecord}
+import root_cause_analysis.KeyByDimensionGroup.keyByDimensionGroup
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -17,12 +18,13 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
 
     spec.min = 3000.0f
     spec.max = 5000.0f
+    spec.aggregationWindowSize = 30
 
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test3",
+      "test1",
       env,
       1)
 
@@ -31,7 +33,9 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
     val hierarchicalContributorsFinder = new HierarchicalContributorsFinder()
 
     output
-      .map(anomaly => hierarchicalContributorsFinder.search(anomaly))
+      // map stream of AnomalyEvent to stream of (DimensionGroup, AnomalyEvent)
+      .flatMap(record => keyByDimensionGroup(record))
+      .map(anomaly => (anomaly._1, hierarchicalContributorsFinder.search(anomaly._2)))
       .print()
 
     env.execute("Hierarchical Contributors Finder test")
