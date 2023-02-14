@@ -1,4 +1,8 @@
-# online-rca
+# Overview
+This project is the implementation of my Thesis with title `Online Anomaly Detection and Root Cause Analysis` for the Master program [Data and Web Science](https://dws.csd.auth.gr/) in the [Department of Informatics](https://www.csd.auth.gr/en/) of [Aristotle University of Thessaloniki](https://www.auth.gr/en/).
+
+# Project structure
+The project provides a docker-compose.yaml file in order to reproduce the required infrastructure components
 
 # Data generation
 DSGen-software-code-3.2.0rc1/tools/tpcds.sql contains the create statements for the tables of the database
@@ -15,27 +19,6 @@ Create entry point script in order to generate data when container is created.
 # Creating a custom Makefile
 In order to create a custom makefile copy the Makefile.suite file and make changes on the copy created
 
-# Extras
-TPC-DS in PostgreSQL [link](https://ankane.org/tpc-ds)
-
-
-# Requirements
-## Kafka Producer
-
-```sh
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASS=postgres
-DB_NAME=tpcds
-
-KAFKA_BROKERS=localhost:9093
-```
-
-Run producer example:
-```
-python kafka_producer/sql_to_kafka.py --table_name web_sales_cube1 --topic_name test1 --batch_size 10000 --limit 2000
-```
 
 java 11
 scala 2.12
