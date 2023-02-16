@@ -1,4 +1,4 @@
-name := "online-rca"
+name := "online-ad-rca"
 organization := "auth.dws"
 version := "0.1"
 
