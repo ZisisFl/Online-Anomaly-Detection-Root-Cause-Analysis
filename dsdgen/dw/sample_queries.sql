@@ -87,3 +87,12 @@ and web_sales.ws_item_sk = item.i_item_sk
 and web_sales.ws_ship_addr_sk = customer_address.ca_address_sk
 and web_sales.ws_ship_mode_sk = ship_mode.sm_ship_mode_sk
 limit 1000
+
+select sum(ws_quantity), date_trunc('hour', sale_at)
+from web_sales_cube1
+group by date_trunc('hour', sale_at)
+
+
+select sum(ws_quantity), date_trunc('day', sale_at), ca_state, ca_country, ca_county
+from web_sales_cube1
+group by date_trunc('day', sale_at), ca_state, ca_country, ca_county
