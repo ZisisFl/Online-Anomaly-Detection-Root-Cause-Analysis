@@ -39,3 +39,5 @@ After that you can create data cubes in the form of views out of the database ta
 
 # Extras
 - TPC-DS in PostgreSQL [link](https://ankane.org/tpc-ds)
+- Accessing tool for query generation in TPC-DS ./dsqgen -help
+- Accessing tool for data generation in TPC-DS ./dsdgen -help
