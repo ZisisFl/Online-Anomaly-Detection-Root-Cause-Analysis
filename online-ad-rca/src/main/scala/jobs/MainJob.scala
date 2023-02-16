@@ -6,17 +6,17 @@ import models.{AnomalyEvent, Dimension, InputRecord}
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import root_cause_analysis.HierarchicalContributorsFinder
+import root_cause_analysis.{HierarchicalContributorsFinder, SimpleContributorsFinder}
 import sources.kafka.InputRecordStreamBuilder
 
 object MainJob {
   def main(args: Array[String]) {
 
-    // Parse program arguments
+//    // Parse program arguments
 //    val parameters = ParameterTool.fromArgs(args)
+//    env.getConfig.setGlobalJobParameters(parameters)
 
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
-//    env.getConfig.setGlobalJobParameters(parameters)
     AppConfig.enableCheckpoints(env)
 
     // load input stream
@@ -25,23 +25,53 @@ object MainJob {
       env,
       1)
 
-    // set up anomaly detector
-    val spec: ThresholdDetectorSpec = new ThresholdDetectorSpec()
+    val spec = {
+      if (AppConfig.AnomalyDetection.METHOD == "threshold") {
+        val spec: ThresholdDetectorSpec = new ThresholdDetectorSpec()
 
-    spec.min = 3000.0f
-    spec.max = 5000.0f
+        spec.min = 3000.0f
+        spec.max = 5000.0f
 
-    val detector: ThresholdDetector = new ThresholdDetector()
-    detector.init(spec)
+        spec
+      }
+      else {
+        // ThresholdDetector is the default
+        val spec: ThresholdDetectorSpec = new ThresholdDetectorSpec()
+
+        spec.min = 3000.0f
+        spec.max = 5000.0f
+
+        spec
+      }
+    }
+
+    val detector = {
+      if (AppConfig.AnomalyDetection.METHOD == "threshold") {
+        val detector: ThresholdDetector = new ThresholdDetector()
+        detector.init(spec)
+
+        detector
+      }
+      else {
+        // ThresholdDetector is the default
+        val detector: ThresholdDetector = new ThresholdDetector()
+        detector.init(spec)
+
+        detector
+      }
+    }
 
     val anomaliesStream: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
     // apply contributors finder
-    val hierarchicalContributorsFinder = new HierarchicalContributorsFinder()
-
-    val rcaStream = anomaliesStream.map(anomaly => hierarchicalContributorsFinder.search(anomaly))
-
-    rcaStream.print()
+    val contributorsFinder = {
+      if (AppConfig.RootCauseAnalysis.METHOD == "hierarchical") {
+        new HierarchicalContributorsFinder().runSearch(anomaliesStream)
+      }
+      else if (AppConfig.RootCauseAnalysis.METHOD == "simple") {
+        new SimpleContributorsFinder().runSearch(anomaliesStream)
+      }
+    }
 
     env.execute("Anomaly Detection Job")
   }

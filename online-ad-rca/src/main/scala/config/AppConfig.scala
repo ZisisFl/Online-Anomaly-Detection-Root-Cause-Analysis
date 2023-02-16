@@ -51,4 +51,12 @@ object AppConfig {
     final val DIMENSION_DEFINITIONS = conf.getConfig("input_stream.dimensions.definitions")
     final val DIMENSION_HIERARCHIES = constructDimensionHierarchiesMap()
   }
+
+  object AnomalyDetection {
+    final val METHOD = conf.getString("anomaly_detection.method")
+  }
+
+  object RootCauseAnalysis {
+    final val METHOD = conf.getString("root_cause_analysis.method")
+  }
 }

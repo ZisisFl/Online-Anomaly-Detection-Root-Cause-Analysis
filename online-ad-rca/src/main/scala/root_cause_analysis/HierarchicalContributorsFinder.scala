@@ -1,8 +1,9 @@
 package root_cause_analysis
 
 import models.{AggregatedRecordsWBaseline, AnomalyEvent, Dimension, DimensionSummary, RCAResult}
+import org.apache.flink.streaming.api.scala.{DataStream, createTypeInformation}
 import root_cause_analysis.HierarchicalContributorsCost.{computeChangeRatio, computeContribution}
-import utils.Types.{ChildDimension, MetricValue, ParentDimension}
+import utils.Types.{ChildDimension, DimensionGroup, MetricValue, ParentDimension}
 
 /**
  * According to thirdeye-pinot/src/main/java/org/apache/pinot/thirdeye/cube/cost/BalancedCostFunction.java
@@ -12,6 +13,14 @@ import utils.Types.{ChildDimension, MetricValue, ParentDimension}
 class HierarchicalContributorsFinder extends Serializable {
 
   private final val MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE = 3d
+
+  def runSearch(anomalyStream: DataStream[AnomalyEvent]): DataStream[(DimensionGroup, RCAResult)] = {
+    anomalyStream
+      // map stream of AnomalyEvent to stream of (DimensionGroup, AnomalyEvent) where is Anomaly event contains the
+      // dimension breakdown of the DimensionGroup used as key
+      .flatMap(record => keyByDimensionGroup(record))
+      .map(anomaly => (anomaly._1, search(anomaly._2)))
+  }
 
   def search(anomalyEvent: AnomalyEvent): RCAResult = {
     val currentTotal = anomalyEvent.aggregatedRecordsWBaseline.current
@@ -124,5 +133,33 @@ class HierarchicalContributorsFinder extends Serializable {
     }
 
     parentValue
-    }
+  }
+
+  def keyByDimensionGroup(record: AnomalyEvent): Seq[(DimensionGroup, AnomalyEvent)] = {
+    // get all dimension groups present in this record
+    val dimensionGroups = record.aggregatedRecordsWBaseline.current_dimensions_breakdown.keySet.map(_.group) ++ record.aggregatedRecordsWBaseline.baseline_dimensions_breakdown.keySet.map(_.group)
+
+    // create a AggregatedRecordsWBaseline record for each dimension group
+    dimensionGroups.map(group => {
+      val groupCurrentDimensionsBreakdown = record.aggregatedRecordsWBaseline.current_dimensions_breakdown.filterKeys(_.group == group)
+      val groupBaselineDimensionsBreakdown = record.aggregatedRecordsWBaseline.baseline_dimensions_breakdown.filterKeys(_.group == group)
+      val groupDimensionsHierarchies = record.aggregatedRecordsWBaseline.dimensions_hierarchy.filterKeys(_.group == group)
+
+      (group,
+        AnomalyEvent(
+          record.anomalyId,
+          record.detectedAt,
+          record.epoch,
+          AggregatedRecordsWBaseline(
+            record.aggregatedRecordsWBaseline.current,
+            record.aggregatedRecordsWBaseline.baseline,
+            groupCurrentDimensionsBreakdown,
+            groupBaselineDimensionsBreakdown,
+            groupDimensionsHierarchies,
+            record.aggregatedRecordsWBaseline.records_in_baseline_offset
+          )
+        )
+      )
+    }).toSeq
+  }
 }

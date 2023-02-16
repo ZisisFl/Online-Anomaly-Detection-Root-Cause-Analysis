@@ -1,6 +1,7 @@
 package root_cause_analysis
 
-import models.{AggregatedRecordsWBaseline, AnomalyEvent, Dimension, DimensionSummary, RCAResult}
+import models.{AnomalyEvent, Dimension, DimensionSummary, RCAResult}
+import org.apache.flink.streaming.api.scala.{DataStream, createTypeInformation}
 import utils.Types.MetricValue
 
 class SimpleContributorsFinder extends Serializable {
@@ -9,6 +10,11 @@ class SimpleContributorsFinder extends Serializable {
    * thirdeye-plugins/thirdeye-contributors-simple/src/main/java/ai/startree/thirdeye/plugins/rca/contributors/simple/SimpleContributorsFinder.java
    * @param aggregatedRecordsWBaseline
    */
+
+  def runSearch(anomalyStream: DataStream[AnomalyEvent]): DataStream[RCAResult] = {
+    anomalyStream
+      .map(anomaly => search(anomaly))
+  }
 
   def search(anomalyEvent: AnomalyEvent): RCAResult = {
     val currentTotal = anomalyEvent.aggregatedRecordsWBaseline.current
