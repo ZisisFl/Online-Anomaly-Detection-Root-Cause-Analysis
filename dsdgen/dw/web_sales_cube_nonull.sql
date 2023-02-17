@@ -1,6 +1,5 @@
 CREATE VIEW web_sales_cube_nonull AS
 SELECT web_sales.ws_item_sk,
-    web_sales.ws_order_number,
 	web_sales.ws_quantity,
 	web_sales.ws_ext_list_price,
     item.i_brand_id,
@@ -10,7 +9,6 @@ SELECT web_sales.ws_item_sk,
     customer_address.ca_city,
     customer_address.ca_county,
     customer_address.ca_state,
-    customer_address.ca_country,
     trim(TRAILING FROM ship_mode.sm_type) as sm_type,
     trim(TRAILING FROM ship_mode.sm_code) as sm_code,
     trim(TRAILING FROM ship_mode.sm_carrier) as sm_carrier,
@@ -23,6 +21,8 @@ AND web_sales.ws_ship_addr_sk = customer_address.ca_address_sk
 AND web_sales.ws_ship_mode_sk = ship_mode.sm_ship_mode_sk
 
 AND ws_quantity is not null
-AND ca_city is not null
-and ca_county is not null
-and ca_state is not null
+
+-- https://www.postgresqltutorial.com/postgresql-date-functions/postgresql-date_trunc/
+select sum(ws_ext_list_price) as sum_ws_ext_list_price, DATE_TRUNC('hour', sale_at), count(*) as number_of_sales
+from web_sales_cube1
+GROUP BY DATE_TRUNC('hour', sale_at)
