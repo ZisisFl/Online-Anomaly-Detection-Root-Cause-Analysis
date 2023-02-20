@@ -1,5 +1,7 @@
 # Overview
-This project is the implementation of my Thesis with title `Online Anomaly Detection and Root Cause Analysis` for the Master program [Data and Web Science](https://dws.csd.auth.gr/) in the [Department of Informatics](https://www.csd.auth.gr/en/) of [Aristotle University of Thessaloniki](https://www.auth.gr/en/).
+This project is the implementation of my Thesis with title **Online Anomaly Detection and Root Cause Analysis** for the Master program [Data and Web Science](https://dws.csd.auth.gr/) in the [Department of Informatics](https://www.csd.auth.gr/en/) of [Aristotle University of Thessaloniki](https://www.auth.gr/en/).
+
+This work is mainly inspired from ThirdEye [[1](https://dev.startree.ai/docs/startree-enterprise-edition/startree-thirdeye/)], [[2](https://github.com/startreedata/thirdeye)], [[3](https://github.com/project-thirdeye/thirdeye)], [[4](https://thirdeye.readthedocs.io/en/latest/quick_start.html)]. ThirdEye is a monitoring tool for Anomaly Detection and interactive Root Cause Analysis built in Java. ThirdEye relies on data store such as [Apache Pinot](https://pinot.apache.org/) in order to retrieve data in order to perform the analysis. In this work the aim is to bring the functionalities of ThirdEye in a streaming setting in order to provide insights on the fly at data ingestion, before reaching a data warehouse. The project is developed using [Apache Flink](https://flink.apache.org/) framework which provides a rich API to facilitate stream processing and [Apache Kafka](https://kafka.apache.org/) which serves as the message queue of input data streams that feeds Flink.
 
 # Project structure
 This project consists of 4 main components.
@@ -34,3 +36,16 @@ To fire up also the Flink cluster you need to use the `flink-cluster` profile li
 # Flink
 ## Generate Job jar file
 To generate a new jar that can be submitted to the Flink cluster, navigate to the online-ad-rca project folder and the use `sbt assembly` command. This will produce a new jar named `online-ad-rca/target/scala-2.12/online-rca-{VERSION}.jar`
+
+# References
+[1]
+StarTree ThirdEye https://dev.startree.ai/docs/startree-enterprise-edition/startree-thirdeye/
+
+[2]
+StarTree ThirdEye Community Edition open source project, https://github.com/startreedata/thirdeye
+
+[3]
+Archived ThirdEye project (will be deleted by end of 2023), https://github.com/project-thirdeye/thirdeye
+
+[4]
+Documentation of archived ThirdEye project, https://thirdeye.readthedocs.io/en/latest/quick_start.html
