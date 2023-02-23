@@ -1,5 +1,7 @@
 package models
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode
 import utils.Types.MetricValue
 
 case class DimensionSummary(
@@ -22,5 +24,18 @@ case class DimensionSummary(
       contributionChangePercentage,
       contributionToOverallChangePercentage
     )
+  }
+
+  def toObjectNode(objectMapper: ObjectMapper): ObjectNode = {
+    val node: ObjectNode = objectMapper.createObjectNode()
+    node.set("dimension", dimension.toObjectNode(objectMapper))
+    node.put("currentValue", currentValue)
+    node.put("baselineValue", baselineValue)
+    node.put("cost", cost)
+    node.put("valueChangePercentage", valueChangePercentage)
+    node.put("contributionChangePercentage", contributionChangePercentage)
+    node.put("contributionToOverallChangePercentage", contributionToOverallChangePercentage)
+
+    node
   }
 }

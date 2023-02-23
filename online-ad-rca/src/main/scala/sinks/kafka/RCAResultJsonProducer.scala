@@ -8,15 +8,14 @@ import serialization.RCAResultSerializationSchema
 
 import java.util.Properties
 
-case class GenericKafkaProducer(topic: String) extends FlinkKafkaProducer[RCAResult](
+case class RCAResultJsonProducer(topic: String) extends FlinkKafkaProducer[RCAResult](
   topic,
-  new RCAResultSerializationSchema(topic),
+  new RCAResultSerializationSchema,
   {
     val properties = new Properties()
     properties.setProperty("bootstrap.servers", AppConfig.Kafka.BOOTSTRAP_SERVERS)
 
     properties
-  },
-  FlinkKafkaProducer.Semantic.EXACTLY_ONCE
+  }
 )
-//https://github.com/apache/flink/blob/db4f7781173bdc5790f7b3e1fd3eeebfa4b31fc9/flink-formats/flink-json/src/main/java/org/apache/flink/formats/json/JsonSerializationSchema.java
+// https://github.com/mkuthan/example-flink-kafka/blob/master/src/main/scala/example/flink/FlinkExample.scala
