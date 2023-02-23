@@ -23,7 +23,6 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1)
 
@@ -47,7 +46,6 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1)
 

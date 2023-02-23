@@ -24,7 +24,6 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1)
 
@@ -50,7 +49,6 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1)
 
@@ -60,7 +58,7 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
 
     simpleContributorsFinder
       .runSearch(output)
-      .addSink(RCAResultJsonProducer("output"))
+      .addSink(RCAResultJsonProducer())
 
     env.execute("Simple Contributors Finder test")
   }
@@ -75,7 +73,6 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1)
 

@@ -39,7 +39,7 @@ class OffsetBaselineAggregator extends AggregateFunction[AggregatedRecords, Seq[
         baseline = rest.map(_.current).sum / rest.length,
         current_dimensions_breakdown = last.dimensions_breakdown,
         baseline_dimensions_breakdown = rest.map(_.dimensions_breakdown).reduceLeft(_++_).groupBy(_._1).mapValues(x => x.values.sum / rest.length),
-        dimensions_hierarchy = rest.map(_.dimensions_hierarchy).reduceLeft(_++_),
+        dimensions_hierarchy = accumulator.map(_.dimensions_hierarchy).reduceLeft(_++_),
         records_in_baseline_offset = rest.length
       )
     }

@@ -18,7 +18,6 @@ class TriggerAndEvictorsTest extends AnyFlatSpec{
 
   "simulating countWindow functionality" should "work" in {
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1
     )

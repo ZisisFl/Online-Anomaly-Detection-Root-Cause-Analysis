@@ -1,7 +1,6 @@
 package config
 
 import com.typesafe.config._
-import models.Dimension
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.CheckpointConfig.ExternalizedCheckpointCleanup
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
@@ -45,6 +44,7 @@ object AppConfig {
         .groupBy(_._1)
         .mapValues(_.map(_._2).head)
     }
+    final val INPUT_TOPIC = conf.getString("input_stream.input_topic")
     final val TIMESTAMP_FIELD = conf.getString("input_stream.timestamp_field")
     final val VALUE_FIELD = conf.getString("input_stream.value_field")
     final val DIMENSION_NAMES = conf.getStringList("input_stream.dimensions.names").asScala.toList
@@ -58,5 +58,6 @@ object AppConfig {
 
   object RootCauseAnalysis {
     final val METHOD = conf.getString("root_cause_analysis.method")
+    final val OUTPUT_TOPIC = "%s-out".format(InputStream.INPUT_TOPIC)//conf.getString("input_stream.output_topic")
   }
 }

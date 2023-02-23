@@ -9,9 +9,9 @@ import utils.dimension.DimensionsBuilder
 
 object InputRecordStreamBuilder {
   def buildInputRecordStream(
-                               kafkaTopic: String,
                                env: StreamExecutionEnvironment,
                                parallelism: Int,
+                               kafkaTopic: String = AppConfig.InputStream.INPUT_TOPIC,
                                kafkaOffset: String = "earliest",
                                groupId: String = AppConfig.Kafka.GROUP_ID): DataStream[InputRecord] = {
 

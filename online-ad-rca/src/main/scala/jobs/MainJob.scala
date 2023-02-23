@@ -7,6 +7,7 @@ import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import root_cause_analysis.{HierarchicalContributorsFinder, SimpleContributorsFinder}
+import sinks.kafka.RCAResultJsonProducer
 import sources.kafka.InputRecordStreamBuilder
 
 object MainJob {
@@ -21,7 +22,6 @@ object MainJob {
 
     // load input stream
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1)
 
@@ -64,14 +64,13 @@ object MainJob {
     val anomaliesStream: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
     // apply contributors finder
-    val contributorsFinder = {
-      if (AppConfig.RootCauseAnalysis.METHOD == "hierarchical") {
-        new HierarchicalContributorsFinder().runSearch(anomaliesStream)
-      }
-      else if (AppConfig.RootCauseAnalysis.METHOD == "simple") {
-        new SimpleContributorsFinder().runSearch(anomaliesStream)
-      }
-    }
+
+//    if (AppConfig.RootCauseAnalysis.METHOD == "hierarchical") {
+//      new HierarchicalContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer)
+//    }
+//    else if (AppConfig.RootCauseAnalysis.METHOD == "simple") {
+//      new SimpleContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer)
+//    }
 
     env.execute("Anomaly Detection Job")
   }

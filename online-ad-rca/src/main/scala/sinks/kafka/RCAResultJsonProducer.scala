@@ -8,7 +8,7 @@ import serialization.RCAResultSerializationSchema
 
 import java.util.Properties
 
-case class RCAResultJsonProducer(topic: String) extends FlinkKafkaProducer[RCAResult](
+case class RCAResultJsonProducer(topic: String = AppConfig.RootCauseAnalysis.OUTPUT_TOPIC) extends FlinkKafkaProducer[RCAResult](
   topic,
   new RCAResultSerializationSchema,
   {

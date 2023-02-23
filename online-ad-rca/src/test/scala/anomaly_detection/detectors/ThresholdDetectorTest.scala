@@ -25,7 +25,6 @@ class ThresholdDetectorTest extends AnyFlatSpec{
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1
     )
@@ -47,7 +46,6 @@ class ThresholdDetectorTest extends AnyFlatSpec{
     detector.init(spec)
 
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1
     )

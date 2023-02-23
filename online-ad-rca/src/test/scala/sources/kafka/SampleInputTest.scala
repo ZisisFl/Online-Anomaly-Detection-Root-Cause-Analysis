@@ -15,7 +15,6 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
 
   "input stream" should "be created with InputRecordStream.createInputRecordStream method" in {
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1,
       "earliest"
@@ -28,7 +27,6 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
 
   "town count" should "work" in {
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      "test1",
       env,
       1,
       "earliest"
