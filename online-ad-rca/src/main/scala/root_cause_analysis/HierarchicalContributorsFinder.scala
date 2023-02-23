@@ -19,6 +19,7 @@ class HierarchicalContributorsFinder extends Serializable {
       // map stream of AnomalyEvent to stream of (DimensionGroup, AnomalyEvent) where is Anomaly event contains the
       // dimension breakdown of the DimensionGroup used as key
       .flatMap(record => keyByDimensionGroup(record))
+      .keyBy(_._1)
       .map(anomaly => search(anomaly._2, anomaly._1))
   }
 
