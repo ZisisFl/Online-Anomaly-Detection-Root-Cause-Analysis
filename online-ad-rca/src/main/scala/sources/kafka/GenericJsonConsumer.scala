@@ -8,7 +8,7 @@ import serialization.JSONDeserializationSchema
 
 import java.util.Properties
 
-case class GenericJsonKafkaConsumer(topicName: String, groupId: String = AppConfig.Kafka.GROUP_ID) extends FlinkKafkaConsumer[ObjectNode](
+case class GenericJsonConsumer(topicName: String, groupId: String = AppConfig.Kafka.GROUP_ID) extends FlinkKafkaConsumer[ObjectNode](
   topicName,
   new JSONKeyValueDeserializationSchema(false),
   {

@@ -51,7 +51,7 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
     val fromTime = "earliest"
 
     val inputOrdersStream: DataStream[InputRecord] = {
-      val kafkaConsumer = GenericJsonKafkaConsumer("test1", "flink_job")
+      val kafkaConsumer = GenericJsonConsumer("test1", "flink_job")
 
       val kafkaConsumerWithOffset = fromTime.toLowerCase match {
         case "earliest" => kafkaConsumer.setStartFromEarliest()

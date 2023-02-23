@@ -16,7 +16,7 @@ object InputRecordStreamBuilder {
                                groupId: String = AppConfig.Kafka.GROUP_ID): DataStream[InputRecord] = {
 
     val inputOrdersStream: DataStream[InputRecord] = {
-      val kafkaConsumer = GenericJsonKafkaConsumer(kafkaTopic, groupId)
+      val kafkaConsumer = GenericJsonConsumer(kafkaTopic, groupId)
 
       val kafkaConsumerWithOffset = kafkaOffset.toLowerCase match {
         case "earliest" => kafkaConsumer.setStartFromEarliest()
