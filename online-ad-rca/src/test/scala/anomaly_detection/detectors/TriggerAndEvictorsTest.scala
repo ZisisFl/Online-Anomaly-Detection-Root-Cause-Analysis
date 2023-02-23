@@ -1,6 +1,7 @@
 package anomaly_detection.detectors
 
-import anomaly_detection.aggregators.{OffsetBaselineAggregator, SumAggregator}
+import aggregators.OffsetBaselineAggregator
+import aggregators.metric_aggregators.SumAggregator
 import config.AppConfig
 import models.{AggregatedRecordsWBaseline, InputRecord}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}

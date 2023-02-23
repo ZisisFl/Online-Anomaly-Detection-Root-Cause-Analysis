@@ -1,4 +1,4 @@
-package anomaly_detection.aggregators
+package aggregators.metric_aggregators
 
 import models.accumulators.SumAccumulator
 import models.{AggregatedRecords, Dimension, InputRecord}

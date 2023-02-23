@@ -1,4 +1,4 @@
-package anomaly_detection.aggregators
+package aggregators
 
 import models.accumulators.OffsetBaselineAccumulator
 import models.{AggregatedRecords, AggregatedRecordsWBaseline, Dimension}

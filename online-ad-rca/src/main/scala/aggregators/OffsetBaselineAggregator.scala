@@ -1,4 +1,4 @@
-package anomaly_detection.aggregators
+package aggregators
 
 import models.{AggregatedRecords, AggregatedRecordsWBaseline, Dimension}
 import org.apache.flink.api.common.functions.AggregateFunction
