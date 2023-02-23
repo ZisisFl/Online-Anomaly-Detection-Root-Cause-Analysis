@@ -14,15 +14,15 @@ class HierarchicalContributorsFinder extends Serializable {
 
   private final val MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE = 3d
 
-  def runSearch(anomalyStream: DataStream[AnomalyEvent]): DataStream[(DimensionGroup, RCAResult)] = {
+  def runSearch(anomalyStream: DataStream[AnomalyEvent]): DataStream[RCAResult] = {
     anomalyStream
       // map stream of AnomalyEvent to stream of (DimensionGroup, AnomalyEvent) where is Anomaly event contains the
       // dimension breakdown of the DimensionGroup used as key
       .flatMap(record => keyByDimensionGroup(record))
-      .map(anomaly => (anomaly._1, search(anomaly._2)))
+      .map(anomaly => search(anomaly._2, anomaly._1))
   }
 
-  def search(anomalyEvent: AnomalyEvent): RCAResult = {
+  def search(anomalyEvent: AnomalyEvent, dimensionGroup: String): RCAResult = {
     val currentTotal = anomalyEvent.aggregatedRecordsWBaseline.current
     val baselineTotal = anomalyEvent.aggregatedRecordsWBaseline.baseline
 
@@ -31,6 +31,7 @@ class HierarchicalContributorsFinder extends Serializable {
       anomalyEvent.detectedAt,
       currentTotal,
       baselineTotal,
+      dimensionGroup,
       computeSummaries(
         currentTotal,
         baselineTotal,

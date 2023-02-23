@@ -64,13 +64,12 @@ object MainJob {
     val anomaliesStream: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
     // apply contributors finder
-
-//    if (AppConfig.RootCauseAnalysis.METHOD == "hierarchical") {
-//      new HierarchicalContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer)
-//    }
-//    else if (AppConfig.RootCauseAnalysis.METHOD == "simple") {
-//      new SimpleContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer)
-//    }
+    if (AppConfig.RootCauseAnalysis.METHOD == "hierarchical") {
+      new HierarchicalContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer())
+    }
+    else if (AppConfig.RootCauseAnalysis.METHOD == "simple") {
+      new SimpleContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer())
+    }
 
     env.execute("Anomaly Detection Job")
   }

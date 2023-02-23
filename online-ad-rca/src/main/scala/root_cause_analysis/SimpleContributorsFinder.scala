@@ -16,7 +16,7 @@ class SimpleContributorsFinder extends Serializable {
       .map(anomaly => search(anomaly))
   }
 
-  def search(anomalyEvent: AnomalyEvent): RCAResult = {
+  def search(anomalyEvent: AnomalyEvent, dimensionGroup: String = "all"): RCAResult = {
     val currentTotal = anomalyEvent.aggregatedRecordsWBaseline.current
     val baselineTotal = anomalyEvent.aggregatedRecordsWBaseline.baseline
 
@@ -25,6 +25,7 @@ class SimpleContributorsFinder extends Serializable {
       anomalyEvent.detectedAt,
       currentTotal,
       baselineTotal,
+      dimensionGroup,
       computeSummaries(
         currentTotal,
         baselineTotal,
