@@ -1,5 +1,6 @@
 package root_cause_analysis
 
+import config.AppConfig
 import models.{AggregatedRecordsWBaseline, AnomalyEvent, Dimension, DimensionSummary, RCAResult}
 import org.apache.flink.streaming.api.scala.{DataStream, createTypeInformation}
 import root_cause_analysis.HierarchicalContributorsCost.{computeChangeRatio, computeContribution}
@@ -52,7 +53,7 @@ class HierarchicalContributorsFinder extends Serializable {
                   ): List[DimensionSummary] = {
 
     // some Dimensions(name, value) tuples are not present in both tables - fill those with zeroes
-    (currentDimensionsBreakdown.keySet ++ baselineDimensionsBreakdown.keySet).map(dim => {
+    val dimensionSummaries = (currentDimensionsBreakdown.keySet ++ baselineDimensionsBreakdown.keySet).map(dim => {
       val currentValue: Double = currentDimensionsBreakdown.getOrElse(dim, 0)
       val baselineValue: Double = baselineDimensionsBreakdown.getOrElse(dim, 0)
 
@@ -105,7 +106,10 @@ class HierarchicalContributorsFinder extends Serializable {
       }
     }).toList
       .filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
-      .sortBy(-_.cost) // sort resulting list of DimensionStats by descending cost
+
+    // return filtered List of DimensionSummaries according to dimensionImportance
+    dimensionImportance(dimensionSummaries, AppConfig.RootCauseAnalysis.SUMMARY_SIZE)
+      .sortWith(_.cost > _.cost) // sort resulting list of DimensionStats by descending cost
   }
 
   private def getParentValue(
@@ -163,5 +167,28 @@ class HierarchicalContributorsFinder extends Serializable {
         )
       )
     }).toSeq
+  }
+
+  /**
+   * Given a LIst of DimensionSummary records from lowest to top dimension in an hierarchy keeps topK dimensions
+   * with highest costs
+   * @param dimensionSummaries
+   * @param topK
+   * @return
+   */
+  private def dimensionImportance(dimensionSummaries: List[DimensionSummary], topK: Int = 3): List[DimensionSummary] = {
+    val dimensionSummariesByLevel = dimensionSummaries.groupBy(_.dimension.level)
+    // get an ordered list od dimension levels from lowest level to upper level
+    val dimensionLevels = dimensionSummariesByLevel.keySet.toList.sortWith(_ > _)
+
+    dimensionLevels
+      // get levels dimension summaries and keep topK of them according to cost
+      .map(dimensionLevel => getTopKDimChildren(dimensionSummariesByLevel(dimensionLevel), topK))
+      // merge dimensions summaries with those of parent level and keep topK
+      .foldLeft(List[DimensionSummary]())((a,b) => getTopKDimChildren(a ++ b, topK))
+  }
+
+  private def getTopKDimChildren(dimensionSummaries: List[DimensionSummary], topK: Int): List[DimensionSummary] = {
+    dimensionSummaries.sortWith(_.cost > _.cost).take(topK)
   }
 }
