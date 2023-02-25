@@ -34,7 +34,6 @@ object AppConfig {
 
   object Flink {
     final val HOST = conf.getString("flink.host")
-    final val SESSIONWITHGAP = conf.getString("flink.session-with-gap")
   }
 
   object InputStream {
@@ -44,12 +43,41 @@ object AppConfig {
         .groupBy(_._1)
         .mapValues(_.map(_._2).head)
     }
+
+    /**
+     * Given the DIMENSION_HIERARCHIES Create a map of type (dimension name -> level)
+     * for each dimension. Root doesn't take part in the DIMENSION_HIERARCHIES but we consider
+     * it to be level 0
+     * @return
+     */
+    private def constructDimensionLevelsMap(): scala.collection.mutable.Map[String, Int] = {
+      val dimensionLevels = scala.collection.mutable.Map[String, Int]()
+      var notDefined = AppConfig.InputStream.DIMENSION_HIERARCHIES
+
+      while (notDefined.nonEmpty) {
+        AppConfig.InputStream.DIMENSION_HIERARCHIES.foreach(x => {
+
+          if (x._2 == "root") {
+            dimensionLevels(x._1) = 1
+            notDefined = notDefined.-(x._1)
+          }
+          else if (dimensionLevels.isDefinedAt(x._2)) {
+            dimensionLevels(x._1) = dimensionLevels(x._2) + 1
+            notDefined = notDefined.-(x._1)
+          }
+        })
+      }
+
+      dimensionLevels
+    }
+
     final val INPUT_TOPIC = conf.getString("input_stream.input_topic")
     final val TIMESTAMP_FIELD = conf.getString("input_stream.timestamp_field")
     final val VALUE_FIELD = conf.getString("input_stream.value_field")
     final val DIMENSION_NAMES = conf.getStringList("input_stream.dimensions.names").asScala.toList
     final val DIMENSION_DEFINITIONS = conf.getConfig("input_stream.dimensions.definitions")
     final val DIMENSION_HIERARCHIES = constructDimensionHierarchiesMap()
+    final val DIMENSION_LEVELS = constructDimensionLevelsMap()
   }
 
   object AnomalyDetection {

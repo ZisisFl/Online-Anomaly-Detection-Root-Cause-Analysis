@@ -124,7 +124,7 @@ class HierarchicalContributorsFinder extends Serializable {
      */
 
     // find parent
-    val parentDim = dimensionsHierarchy.getOrElse(childDim, Dimension("root", "none", "none"))
+    val parentDim = dimensionsHierarchy.getOrElse(childDim, Dimension("root", "none", "none", 0))
 
     // get MetricValue of parent
     // if Dimension doesn't exist in dimensionsHierarchy means parentDim is root so set value to valueTotal
