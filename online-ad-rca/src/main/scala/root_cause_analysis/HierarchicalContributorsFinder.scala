@@ -127,15 +127,16 @@ class HierarchicalContributorsFinder extends Serializable {
      *
      */
 
-    // find parent
-    val parentDim = dimensionsHierarchy.getOrElse(childDim, Dimension("root", "none", "none", 0))
 
     // get MetricValue of parent
-    // if Dimension doesn't exist in dimensionsHierarchy means parentDim is root so set value to valueTotal
-    // otherwise search for value in dimensionsBreakdown which may be absent as happens for current calculation
-    val parentValue: Double = parentDim.name match {
-      case "root" => valueTotal
-      case _ => dimensionsBreakdown.getOrElse(parentDim, 0d)
+    // If childDim is of level 1 then parent is root so set value to valueTotal
+    // otherwise search for value in dimensionsBreakdown which may be absent
+    // in this case set value to 0
+    val parentValue = if (childDim.level == 1) {
+      valueTotal
+    }
+    else {
+      dimensionsBreakdown.getOrElse(dimensionsHierarchy(childDim), 0d)
     }
 
     parentValue

@@ -70,6 +70,6 @@ class Stats(
   }
 
   private def roundUp(value: Double): Double = {
-    Math.round(value * 10000d) / 100000d
+    Math.round(value * 10000d) / 10000d
   }
 }

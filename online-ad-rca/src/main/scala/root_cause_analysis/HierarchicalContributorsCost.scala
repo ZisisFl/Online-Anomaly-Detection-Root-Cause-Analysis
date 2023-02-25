@@ -4,9 +4,16 @@ object HierarchicalContributorsCost {
   private final val EPSILON = 0.00001
 
   def compute(baselineValue: Double, currentValue: Double, parentRatio: Double, contribution: Double): Double = {
-    val checkedParentRatio = parentRatio match {
-      case 0 => 1d
-      case _ => parentRatio
+    /**
+     * According to the implementation of fillEmptyValuesAndGetError in
+     * thirdeye-pinot/src/main/java/org/apache/pinot/thirdeye/cube/cost/ChangeRatioCostFunction.java
+     * In case that parentRatio is NaN or 0 set parentRatio to 1
+     */
+    val checkedParentRatio = if (parentRatio == 0 || parentRatio.isNaN) {
+      1d
+    }
+    else {
+      parentRatio
     }
 
     if (baselineValue != 0 && currentValue != 0) {
@@ -92,6 +99,11 @@ object HierarchicalContributorsCost {
   }
 
   def computeChangeRatio(baseline: Double, current: Double): Double = {
-    current / baseline
+    if (baseline != 0d) {
+      current / baseline
+    }
+    else {
+      Double.NaN
+    }
   }
 }
