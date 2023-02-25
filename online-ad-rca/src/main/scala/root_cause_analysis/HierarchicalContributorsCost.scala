@@ -19,11 +19,13 @@ object HierarchicalContributorsCost {
     if (baselineValue != 0 && currentValue != 0) {
       error(baselineValue, currentValue, checkedParentRatio, contribution)
     }
-    else if (baselineValue == 0) {
-      errorWithEmptyBaseline(currentValue, checkedParentRatio)
-    }
-    else if (currentValue == 0) {
-      errorWithEmptyCurrent(baselineValue, checkedParentRatio)
+    else if (baselineValue == 0 || currentValue == 0) {
+      if (baselineValue == 0) {
+        errorWithEmptyBaseline(currentValue, checkedParentRatio)
+      }
+      else {
+        errorWithEmptyCurrent(baselineValue, checkedParentRatio)
+      }
     }
     else 0 // baselineValue and currentValue are zeros. Set cost to zero so the node will be naturally aggregated to its parent
   }
