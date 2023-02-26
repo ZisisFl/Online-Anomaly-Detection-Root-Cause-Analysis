@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SCALE=10
+SCALE=2
 SEED=66
 IMAGE_TAG=0.1
 IMAGE_NAME=dsdgen${SCALE}:${IMAGE_TAG}

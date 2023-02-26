@@ -1,5 +1,5 @@
 #!/bin/bash
-SCALE=10
+SCALE=2
 DB_NAME=tpcds$SCALE
 INPUT_FOLDER=dsdgen_output/scale$SCALE
 
