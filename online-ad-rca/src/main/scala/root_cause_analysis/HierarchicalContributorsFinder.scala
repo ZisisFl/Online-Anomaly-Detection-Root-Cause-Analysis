@@ -11,11 +11,11 @@ import utils.Types.{ChildDimension, DimensionGroup, MetricValue, ParentDimension
  *
  * Returns the cost that consider change difference, change changeRatio, and node size (contribution percentage of a node).
  */
-class HierarchicalContributorsFinder extends Serializable {
+class HierarchicalContributorsFinder extends ContributorsFinder {
 
   private final val MINIMUM_CONTRIBUTION_OF_INTEREST_PERCENTAGE = 3d
 
-  def runSearch(anomalyStream: DataStream[AnomalyEvent]): DataStream[RCAResult] = {
+  override def runSearch(anomalyStream: DataStream[AnomalyEvent]): DataStream[RCAResult] = {
     anomalyStream
       // map stream of AnomalyEvent to stream of (DimensionGroup, AnomalyEvent) where is Anomaly event contains the
       // dimension breakdown of the DimensionGroup used as key

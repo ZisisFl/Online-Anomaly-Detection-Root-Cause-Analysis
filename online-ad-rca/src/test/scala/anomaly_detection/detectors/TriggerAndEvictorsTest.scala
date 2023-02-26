@@ -18,10 +18,7 @@ class TriggerAndEvictorsTest extends AnyFlatSpec{
   AppConfig.enableCheckpoints(env)
 
   "simulating countWindow functionality" should "work" in {
-    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      env,
-      1
-    )
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(env)
 
     val aggregatedRecordsWBaselineStream: DataStream[AggregatedRecordsWBaseline] = inputStream
       .assignAscendingTimestamps(_.epoch)

@@ -23,9 +23,7 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      env,
-      1)
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(env)
 
     val output: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
@@ -48,9 +46,7 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      env,
-      1)
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(env)
 
     val output: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
@@ -72,9 +68,7 @@ class SimpleContributorsFinderTest extends AnyFlatSpec with Matchers {
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)
 
-    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      env,
-      1)
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(env)
 
     val output: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 

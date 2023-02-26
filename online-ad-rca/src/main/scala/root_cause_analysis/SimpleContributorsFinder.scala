@@ -4,14 +4,14 @@ import models.{AnomalyEvent, Dimension, DimensionSummary, RCAResult}
 import org.apache.flink.streaming.api.scala.{DataStream, createTypeInformation}
 import utils.Types.MetricValue
 
-class SimpleContributorsFinder extends Serializable {
+class SimpleContributorsFinder extends ContributorsFinder {
   /**
    * Similar logic to computeStats method of Startree Thirdeye
    * thirdeye-plugins/thirdeye-contributors-simple/src/main/java/ai/startree/thirdeye/plugins/rca/contributors/simple/SimpleContributorsFinder.java
    * @param aggregatedRecordsWBaseline
    */
 
-  def runSearch(anomalyStream: DataStream[AnomalyEvent]): DataStream[RCAResult] = {
+  override def runSearch(anomalyStream: DataStream[AnomalyEvent]): DataStream[RCAResult] = {
     anomalyStream
       .map(anomaly => search(anomaly))
   }

@@ -10,7 +10,6 @@ import utils.dimension.DimensionsBuilder
 object InputRecordStreamBuilder {
   def buildInputRecordStream(
                                env: StreamExecutionEnvironment,
-                               parallelism: Int,
                                kafkaTopic: String = AppConfig.InputStream.INPUT_TOPIC,
                                kafkaOffset: String = "earliest",
                                groupId: String = AppConfig.Kafka.GROUP_ID): DataStream[InputRecord] = {
@@ -25,7 +24,7 @@ object InputRecordStreamBuilder {
         //case _ => throw new IllegalArgumentException("kafkaOffset can either be earliest, latest or a timestamp")
       }
       env.addSource(kafkaConsumerWithOffset)
-        .setParallelism(parallelism)
+        .setParallelism(env.getParallelism - 1)
         .map(record => buildInputRecord(record))
     }
     inputOrdersStream

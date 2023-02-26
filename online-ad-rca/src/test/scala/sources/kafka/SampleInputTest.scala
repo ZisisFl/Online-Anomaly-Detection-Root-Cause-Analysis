@@ -14,11 +14,7 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
   AppConfig.enableCheckpoints(env)
 
   "input stream" should "be created with InputRecordStream.createInputRecordStream method" in {
-    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      env,
-      1,
-      "earliest"
-    )
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(env)
 
     inputStream.print()
 
@@ -26,11 +22,7 @@ class SampleInputTest extends AnyFlatSpec with Matchers  {
   }
 
   "town count" should "work" in {
-    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      env,
-      1,
-      "earliest"
-    )
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(env)
 
     val morgan_town_count = inputStream
       .map(record => record.dimensions.getOrElse("ca_city", "default_town"))

@@ -21,9 +21,7 @@ object MainJob {
     AppConfig.enableCheckpoints(env)
 
     // load input stream
-    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(
-      env,
-      1)
+    val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(env)
 
     val spec = {
       if (AppConfig.AnomalyDetection.METHOD == "threshold") {
@@ -64,12 +62,15 @@ object MainJob {
     val anomaliesStream: DataStream[AnomalyEvent] = detector.runDetection(inputStream)
 
     // apply contributors finder
-    if (AppConfig.RootCauseAnalysis.METHOD == "hierarchical") {
-      new HierarchicalContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer())
+    val finder = {
+      if (AppConfig.RootCauseAnalysis.METHOD == "hierarchical") {
+        new HierarchicalContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer())
+      }
+      else if (AppConfig.RootCauseAnalysis.METHOD == "simple") {
+        new SimpleContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer())
+      }
     }
-    else if (AppConfig.RootCauseAnalysis.METHOD == "simple") {
-      new SimpleContributorsFinder().runSearch(anomaliesStream).addSink(RCAResultJsonProducer())
-    }
+
 
     env.execute("Anomaly Detection Job")
   }
