@@ -17,7 +17,7 @@ case class InputRecord(
   val parsed_timestamp: LocalDateTime =
     LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern(timestampPattern).withZone(ZoneOffset.UTC))
 
-  val epoch: Long = parsed_timestamp.toEpochSecond(ZoneOffset.UTC)
+  val epoch: Long = parsed_timestamp.toEpochSecond(ZoneOffset.UTC) * 1000
 
   override def toString = {
     "InputRecord(id=%s, created_at=%s, value=%s, dimensions=%s, dimensions_hierarchy=%s)".format(id, timestamp, value, dimensions, dimensions_hierarchy)
