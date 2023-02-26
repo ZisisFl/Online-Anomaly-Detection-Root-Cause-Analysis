@@ -33,7 +33,7 @@ python sql_to_kafka.py -h
 ```
 
 ## Example scenario
-For example in order to generate 2000 records from table/view web_sales_cube1 in topic test1(the definition of this view can be found in dsdgen/dw/web_sales_cube1.sql file):
+For example in order to generate 2000 records from table/view web_sales_cube_nonull in topic test1(the definition of this view can be found in dsdgen/dw/web_sales_cube_nonull.sql file):
 ```
-python sql_to_kafka.py --table_name web_sales_cube1 --topic_name test1 --batch_size 10000 --limit 2000
+python sql_to_kafka.py --table_name web_sales_cube_nonull --topic_name test1 --batch_size 10000 --limit 2000
 ```

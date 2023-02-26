@@ -14,11 +14,10 @@ After you download the TPC-DS zip file you need to:
 By doing so the DSGen-software-code folder will be grayed out in your IDE as it is part of the ignored directories in the .gitignore file.
 
 ## Running TPC-DS generator as Docker container
-Then use the `generate_data.sh` script to generate data and copy them inside this directory in the folder `dsdgen_output`:
+To run the TPC-DS generator and copy the ouput data of the dsdgen tool to a directory of the host machine, a bash script was created named `generate_data.sh`. This script builds the Docker image, runs it with the specified build arguments, generates the required data artifacts and then stops and removes the container created. By editing the script you can change the `SCALE` and the `SEED` of the data as well as the tag for the Docker container. The execution of this script generates the required data artifacts in a directory according to the following format `dsdgen/dsdgen_output/scale{$SCALE_CHOSEN}`:
 ```bash
 ./generate_data.sh
 ```
-This script builds and image according to the Dockerfile, runs a container and copies the generated data from the container filesystem to the host's directory names `dsdgen_output`.
 
 ## Loading data to PostgreSQL
 Next step is to load the data to a PostgreSQL database. You can also use a SQL database of your preference by altering the scripts provided or by executing the steps manually. This section assumes you have a PostgreSQL instance available at localhost:5432.
@@ -39,5 +38,5 @@ After that you can create data cubes in the form of views out of the database ta
 
 # Extras
 - TPC-DS in PostgreSQL [link](https://ankane.org/tpc-ds)
-- Accessing tool for query generation in TPC-DS ./dsqgen -help
-- Accessing tool for data generation in TPC-DS ./dsdgen -help
+- Accessing tool for query generation inside container of TPC-DS ./dsqgen -help
+- Accessing tool for data generation inside container of TPC-DS ./dsdgen -help

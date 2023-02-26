@@ -39,8 +39,7 @@ def parse_command_line_arguments() -> argparse.Namespace:
     parser.add_argument(
         '--limit',
         help='Limit number of records to sent to Kafka (over all batches)',
-        type=int,
-        required=True
+        type=int
         )
     
     args = parser.parse_args()

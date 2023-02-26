@@ -18,6 +18,7 @@ RUN mkdir -p /dsdgen_output
 
 # generate data
 ARG SCALE=1
-RUN ./dsdgen -scale ${SCALE} -dir /dsdgen_output/
+ARG RNGSEED=66
+RUN ./dsdgen -scale ${SCALE} -rngseed ${RNGSEED} -dir /dsdgen_output/
 
 CMD tail -f /dev/null

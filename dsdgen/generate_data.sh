@@ -1,17 +1,24 @@
 #!/bin/sh
 
+SCALE=10
+SEED=66
+IMAGE_TAG=0.1
+IMAGE_NAME=dsdgen${SCALE}:${IMAGE_TAG}
+CONTAINER_NAME=dsdgenerator${SCALE}
+OUTPUT_FOLDER=dsdgen_output/scale${SCALE}
+
 # build image
-docker build -t dsdgen:0.1 .
+docker build --build-arg SCALE=${SCALE} --build-arg SEED=${SEED} -t ${IMAGE_NAME} .
 
 # start container
-docker run -d --name dsdgenerator dsdgen:0.1
+docker run -d --name ${CONTAINER_NAME} ${IMAGE_NAME}
 
 echo "Copying data from Docker container to local filesystem"
-mkdir dsdgen_output
-docker cp dsdgenerator:/dsdgen_output/. dsdgen_output/.
-docker cp dsdgenerator:/dsgenerator/tools/tpcds.sql dsdgen_output/dw_create.sql
+mkdir -p ${OUTPUT_FOLDER}
+docker cp ${CONTAINER_NAME}:/dsdgen_output/. ${OUTPUT_FOLDER}/.
+docker cp ${CONTAINER_NAME}:/dsgenerator/tools/tpcds.sql ${OUTPUT_FOLDER}/dw_create.sql
 
-echo "Stoping dsdgenerator container"
-docker stop dsdgenerator
-echo "Deleting dsdgenerator container"
-docker rm dsdgenerator
+echo "Stoping ${CONTAINER_NAME} container"
+docker stop ${CONTAINER_NAME}
+echo "Deleting ${CONTAINER_NAME} container"
+docker rm ${CONTAINER_NAME}
