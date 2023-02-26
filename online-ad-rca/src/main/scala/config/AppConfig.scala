@@ -32,10 +32,6 @@ object AppConfig {
     final val GROUP_ID = if (conf.hasPath("kafka.group-id")) conf.getString("kafka.group-id") else "flink-online-rca"
   }
 
-  object Flink {
-    final val HOST = conf.getString("flink.host")
-  }
-
   object InputStream {
     private def constructDimensionHierarchiesMap():Map[String, String] = {
       AppConfig.InputStream.DIMENSION_NAMES
