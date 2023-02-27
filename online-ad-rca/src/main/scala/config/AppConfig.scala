@@ -88,7 +88,7 @@ object AppConfig {
     final val METHOD = conf.getString("root_cause_analysis.method")
     final val OUTPUT_TOPIC = {
       if (conf.hasPath("root_cause_analysis.output_topic")) conf.getString("root_cause_analysis.output_topic")
-      else "%s-out".format(InputStream.INPUT_TOPIC)
+      else "%s-%s-out".format(InputStream.INPUT_TOPIC, METHOD)
     }
     final val SUMMARY_SIZE = conf.getInt("root_cause_analysis.summary_size")
   }

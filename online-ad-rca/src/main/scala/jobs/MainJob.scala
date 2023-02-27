@@ -13,12 +13,13 @@ import sources.kafka.InputRecordStreamBuilder
 object MainJob {
   def main(args: Array[String]) {
 
-//    // Parse program arguments
-//    val parameters = ParameterTool.fromArgs(args)
-//    env.getConfig.setGlobalJobParameters(parameters)
-
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     AppConfig.enableCheckpoints(env)
+
+    // Parse program arguments
+    val parameters = ParameterTool.fromArgs(args)
+    env.getConfig.setGlobalJobParameters(parameters)
+
 
     // load input stream
     val inputStream: DataStream[InputRecord] = InputRecordStreamBuilder.buildInputRecordStream(env)
@@ -27,7 +28,7 @@ object MainJob {
       if (AppConfig.AnomalyDetection.METHOD == "threshold") {
         val spec: ThresholdDetectorSpec = new ThresholdDetectorSpec()
 
-        spec.min = 3000.0f
+        spec.min = 400.0f
         spec.max = 5000.0f
 
         spec

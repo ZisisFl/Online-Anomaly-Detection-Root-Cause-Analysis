@@ -34,12 +34,11 @@ class HierarchicalContributorsFinderTest extends AnyFlatSpec with Matchers {
     env.execute("Hierarchical Contributors Finder test")
   }
 
-  "anomaly detection and rca with sink" should "work" in {
+  "AD and RCA with sink" should "work" in {
     val spec: ThresholdDetectorSpec = new ThresholdDetectorSpec()
 
-    spec.min = 3000.0f
-    spec.max = 5000.0f
-    spec.aggregationWindowSize = 30
+    spec.min = 200.0f
+    spec.max = 3000.0f
 
     val detector: ThresholdDetector = new ThresholdDetector()
     detector.init(spec)

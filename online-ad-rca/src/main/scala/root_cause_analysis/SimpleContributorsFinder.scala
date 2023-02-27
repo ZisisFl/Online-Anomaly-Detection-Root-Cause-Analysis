@@ -1,5 +1,6 @@
 package root_cause_analysis
 
+import config.AppConfig
 import models.{AnomalyEvent, Dimension, DimensionSummary, RCAResult}
 import org.apache.flink.streaming.api.scala.{DataStream, createTypeInformation}
 import utils.Types.MetricValue
@@ -66,6 +67,7 @@ class SimpleContributorsFinder extends ContributorsFinder {
       )
     }).toList
       .filter(_.cost > 0) // filter out DimensionStats objects with cost <= 0
-      .sortBy(-_.cost) // sort resulting list of DimensionStats by descending cost
+      .sortWith(_.cost > _.cost) // sort resulting list of DimensionStats by descending cost
+      .take(AppConfig.RootCauseAnalysis.SUMMARY_SIZE)
   }
 }
