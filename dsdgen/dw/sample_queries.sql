@@ -1,3 +1,24 @@
+-- Group data in 10 minute (600 seconds) chunks and sum metric
+SELECT SUM(ws_quantity) as current,
+to_timestamp(floor((extract('epoch' from sale_at) / 600 )) * 600) AT TIME ZONE 'UTC' as interval_alias
+FROM web_sales_cube_nonull
+GROUP BY interval_alias
+
+-- group data into slides of 5 minutes
+SELECT MIN(current), MAX(current), AVG(current) FROM (
+SELECT max(current) as current, window_starting_timestamp
+FROM (
+SELECT
+	ws_quantity,
+    sale_at,
+    SUM(ws_quantity) OVER (ORDER BY sale_at RANGE BETWEEN interval '5 minutes' PRECEDING AND CURRENT ROW) as current,
+	FIRST_VALUE(sale_at) OVER (ORDER BY sale_at RANGE BETWEEN interval '5 minutes' PRECEDING AND CURRENT ROW) as window_starting_timestamp
+FROM web_sales_cube_nonull
+	) T1
+GROUP BY window_starting_timestamp
+ORDER BY window_starting_timestamp
+	)T2
+
 -- sales with data and time
 select store_sales.*,
     date_dim.d_date,
