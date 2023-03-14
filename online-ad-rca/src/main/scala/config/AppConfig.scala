@@ -8,8 +8,8 @@ import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import scala.collection.JavaConverters.asScalaBufferConverter
 
 object AppConfig {
-  private val env = if (System.getenv("SCALA_ENV") == null) "dev" else System.getenv("SCALA_ENV")
-  private val conf = ConfigFactory.load().getConfig(env)
+  //private val env = if (System.getenv("SCALA_ENV") == null) "dev" else System.getenv("SCALA_ENV")
+  private val conf = ConfigFactory.load()//.getConfig(env)
   println(s"[CONFIG]:${conf}")
 
   def enableCheckpoints(env:StreamExecutionEnvironment): Unit={
