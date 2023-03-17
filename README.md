@@ -37,7 +37,7 @@ To fire up also the Flink cluster you need to use the `flink-cluster` profile li
 In this section information about configuring and deploying Flink Jobs will be provided.
 
 ## Job configuration
-The parameters of a Job can be configured through the `online-ad-rca/src/main/resources/application.conf` file. Details of it can be found
+The parameters of a Job can be configured through the `online-ad-rca/src/main/resources/application.conf` file. Details of how it can be configured are available in the README.md file of Flink project (online-ad-rca directory).
 
 ## Generate Job jar file
 To generate a new jar that can be submitted to the Flink cluster, navigate to the online-ad-rca project folder and the use `sbt assembly` command. This will produce a new jar named `online-ad-rca/target/scala-2.12/online-ad-rca-{VERSION}.jar`
