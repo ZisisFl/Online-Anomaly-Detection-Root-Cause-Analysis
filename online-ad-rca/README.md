@@ -7,7 +7,7 @@ used to build the .jar executables.
 The `src/main/resources/application.conf` file serves as the configuration file 
 of the Flink Jobs. It consists of various sections that each one of them 
 - kafka:
-  - bootstrap-servers
+  - bootstrap-servers: List of Kafka Brokers to consider given strings of format host:port
 - input_stream
   - input_topic: The name of the Kafka topic to read input stream of events from
   - timestamp_field: The field name for the JSON input records of the field that will represent timestamp

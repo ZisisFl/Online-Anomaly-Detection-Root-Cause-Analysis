@@ -34,8 +34,20 @@ To fire up also the Flink cluster you need to use the `flink-cluster` profile li
  To access the UI of the Flink cluster go to `http://localhost:8081`
 
 # Flink
+In this section information about configuring and deploying Flink Jobs will be provided.
+
+## Job configuration
+The parameters of a Job can be configured through the `online-ad-rca/src/main/resources/application.conf` file. Details of it can be found
+
 ## Generate Job jar file
-To generate a new jar that can be submitted to the Flink cluster, navigate to the online-ad-rca project folder and the use `sbt assembly` command. This will produce a new jar named `online-ad-rca/target/scala-2.12/online-rca-{VERSION}.jar`
+To generate a new jar that can be submitted to the Flink cluster, navigate to the online-ad-rca project folder and the use `sbt assembly` command. This will produce a new jar named `online-ad-rca/target/scala-2.12/online-ad-rca-{VERSION}.jar`
+
+## Submit Job
+The produced Job jar file can be manually uploaded and submitted to the Flink Cluster through the Flink UI.
+
+Alternatively the jar file can be uploaded using the Flink API's [/jars/upload](https://nightlies.apache.org/flink/flink-docs-master/docs/ops/rest_api/#jars-upload) endpoint and then be submitted using [/jars/:jardid/run](https://nightlies.apache.org/flink/flink-docs-master/docs/ops/rest_api/#jars-jarid-run) endpoint for the specific jarid assigned.
+
+Finally, the job can be submitted also by using the Flink CLI using `flink run` command as documentated [here](https://nightlies.apache.org/flink/flink-docs-master/docs/deployment/cli/#submitting-a-job). In the case of Docker deployed Flink this has to be handled accordingly.
 
 # References
 [1]
